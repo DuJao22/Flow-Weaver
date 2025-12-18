@@ -368,22 +368,25 @@ class WorkflowProject:
     def to_dict(row, include_children=True):
         if row is None:
             return None
+        
+        project_id = row.get("id") if isinstance(row, dict) else row["id"]
+        
         result = {
-            "id": row["id"],
-            "name": row["name"],
-            "description": row["description"],
-            "canvas_zoom": row["canvas_zoom"],
-            "canvas_offset_x": row["canvas_offset_x"],
-            "canvas_offset_y": row["canvas_offset_y"],
-            "is_active": bool(row["is_active"]),
-            "last_executed": row["last_executed"],
-            "execution_count": row["execution_count"],
-            "created_at": row["created_at"],
-            "updated_at": row["updated_at"]
+            "id": project_id,
+            "name": row.get("name") if isinstance(row, dict) else row["name"],
+            "description": row.get("description") if isinstance(row, dict) else row["description"],
+            "canvas_zoom": row.get("canvas_zoom", 1.0) if isinstance(row, dict) else row["canvas_zoom"],
+            "canvas_offset_x": row.get("canvas_offset_x", 0) if isinstance(row, dict) else row["canvas_offset_x"],
+            "canvas_offset_y": row.get("canvas_offset_y", 0) if isinstance(row, dict) else row["canvas_offset_y"],
+            "is_active": bool(row.get("is_active", 1) if isinstance(row, dict) else row["is_active"]),
+            "last_executed": row.get("last_executed") if isinstance(row, dict) else row["last_executed"],
+            "execution_count": row.get("execution_count", 0) if isinstance(row, dict) else row["execution_count"],
+            "created_at": row.get("created_at") if isinstance(row, dict) else row["created_at"],
+            "updated_at": row.get("updated_at") if isinstance(row, dict) else row["updated_at"]
         }
         if include_children:
-            result["nodes"] = [WorkflowNode.to_dict(n) for n in WorkflowProject.get_nodes(row["id"])]
-            result["edges"] = [WorkflowEdge.to_dict(e) for e in WorkflowProject.get_edges(row["id"])]
+            result["nodes"] = [WorkflowNode.to_dict(n) for n in WorkflowProject.get_nodes(project_id)]
+            result["edges"] = [WorkflowEdge.to_dict(e) for e in WorkflowProject.get_edges(project_id)]
         return result
     
     @staticmethod
