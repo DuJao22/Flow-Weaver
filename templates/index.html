@@ -1,0 +1,2842 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlowAI - Gerador de Automações Inteligente</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #0078D4;
+            --primary-dark: #005A9E;
+            --primary-light: #106EBE;
+            --success: #107C10;
+            --error: #D13438;
+            --warning: #FFB900;
+            --bg-dark: #1A1A2E;
+            --bg-sidebar: #0F0F1A;
+            --bg-card: #16213E;
+            --bg-input: #0F3460;
+            --bg-topbar: #12122B;
+            --text-primary: #FFFFFF;
+            --text-secondary: #A0AEC0;
+            --text-muted: #718096;
+            --border: #2D3748;
+            --sidebar-width: 260px;
+            --topbar-height: 56px;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--bg-dark) 0%, #0F0F1A 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: var(--sidebar-width);
+            height: 100vh;
+            background: var(--bg-sidebar);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+            transition: transform 0.3s ease;
+            transform: translateX(-100%);
+        }
+        
+        .sidebar.open {
+            transform: translateX(0);
+        }
+        
+        .sidebar-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .logo i {
+            font-size: 1.75rem;
+            color: var(--primary);
+        }
+        
+        .logo h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), #00D4FF);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .sidebar-nav {
+            flex: 1;
+            padding: 1rem;
+        }
+        
+        .nav-section {
+            margin-bottom: 1.5rem;
+        }
+        
+        .nav-section-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 0.5rem 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            border-radius: 8px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 0.25rem;
+        }
+        
+        .nav-item:hover {
+            background: var(--bg-input);
+            color: var(--text-primary);
+        }
+        
+        .nav-item.active {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .nav-item i {
+            width: 20px;
+            text-align: center;
+        }
+        
+        .agent-status-list {
+            padding: 0.5rem;
+        }
+        
+        .agent-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            background: var(--bg-card);
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            border: 1px solid var(--border);
+        }
+        
+        .agent-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-input);
+            font-size: 1rem;
+        }
+        
+        .agent-info {
+            flex: 1;
+        }
+        
+        .agent-name {
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        
+        .agent-status {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+        
+        .agent-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--text-muted);
+        }
+        
+        .agent-item.idle .agent-indicator { background: var(--text-muted); }
+        .agent-item.active .agent-indicator { background: var(--primary); animation: pulse 1.5s infinite; }
+        .agent-item.complete .agent-indicator { background: var(--success); }
+        .agent-item.error .agent-indicator { background: var(--error); }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+        
+        .topbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: var(--topbar-height);
+            background: var(--bg-topbar);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 1rem;
+            z-index: 90;
+        }
+        
+        .breadcrumbs {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+        }
+        
+        .breadcrumbs span {
+            color: var(--text-muted);
+        }
+        
+        .breadcrumbs .current {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+        
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .settings-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+        
+        .settings-btn:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        .settings-btn i {
+            font-size: 0.875rem;
+        }
+        
+        .api-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: rgba(16, 124, 16, 0.2);
+            border: 1px solid var(--success);
+            border-radius: 20px;
+            font-size: 0.75rem;
+            color: var(--success);
+        }
+        
+        .api-status.error {
+            background: rgba(209, 52, 56, 0.2);
+            border-color: var(--error);
+            color: var(--error);
+        }
+        
+        .api-status i {
+            font-size: 0.625rem;
+        }
+        
+        .menu-toggle {
+            display: block;
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 1.25rem;
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+        
+        .main-content {
+            margin-left: 0;
+            margin-top: var(--topbar-height);
+            flex: 1;
+            padding: 1rem;
+            width: 100%;
+        }
+        
+        .content-wrapper {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .stat-card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+        }
+        
+        .stat-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+        
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+        
+        .stat-card.total .stat-icon { background: rgba(0, 120, 212, 0.2); color: var(--primary); }
+        .stat-card.approved .stat-icon { background: rgba(16, 124, 16, 0.2); color: var(--success); }
+        .stat-card.rejected .stat-icon { background: rgba(209, 52, 56, 0.2); color: var(--error); }
+        .stat-card.rate .stat-icon { background: rgba(255, 185, 0, 0.2); color: var(--warning); }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+        
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+        
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .panel {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+        }
+        
+        .panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+        }
+        
+        .panel-title {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.125rem;
+            font-weight: 600;
+        }
+        
+        .panel-title i {
+            color: var(--primary);
+        }
+        
+        textarea {
+            width: 100%;
+            min-height: 200px;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem;
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            resize: vertical;
+            transition: border-color 0.2s;
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        textarea::placeholder {
+            color: var(--text-muted);
+        }
+        
+        .input-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 0.75rem;
+        }
+        
+        .char-count {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 0.75rem;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0, 120, 212, 0.4);
+        }
+        
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .btn-secondary {
+            background: var(--bg-input);
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+        }
+        
+        .btn-secondary:hover {
+            background: var(--border);
+        }
+        
+        .response-panel {
+            min-height: 400px;
+        }
+        
+        .status-banner {
+            padding: 1rem 1.25rem;
+            border-radius: 10px;
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .status-banner.approved {
+            background: rgba(16, 124, 16, 0.15);
+            border: 1px solid var(--success);
+        }
+        
+        .status-banner.rejected {
+            background: rgba(209, 52, 56, 0.15);
+            border: 1px solid var(--error);
+        }
+        
+        .status-banner.processing {
+            background: rgba(0, 120, 212, 0.15);
+            border: 1px solid var(--primary);
+        }
+        
+        .status-banner i {
+            font-size: 1.25rem;
+        }
+        
+        .status-banner.approved i { color: var(--success); }
+        .status-banner.rejected i { color: var(--error); }
+        .status-banner.processing i { color: var(--primary); }
+        
+        .tabs {
+            display: flex;
+            gap: 0.25rem;
+            margin-bottom: 1rem;
+            background: var(--bg-input);
+            padding: 0.25rem;
+            border-radius: 10px;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 0.625rem 1rem;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-radius: 8px;
+            font-size: 0.8125rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        
+        .tab:hover {
+            color: var(--text-primary);
+        }
+        
+        .tab.active {
+            background: var(--bg-card);
+            color: var(--primary);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .json-container {
+            background: var(--bg-input);
+            border-radius: 10px;
+            padding: 1rem;
+            max-height: 280px;
+            overflow-y: auto;
+        }
+        
+        pre {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8125rem;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            color: #E2E8F0;
+            line-height: 1.6;
+        }
+        
+        .error-list {
+            list-style: none;
+            margin-bottom: 1rem;
+        }
+        
+        .error-list li {
+            padding: 0.625rem 1rem;
+            background: rgba(209, 52, 56, 0.1);
+            border-left: 3px solid var(--error);
+            margin-bottom: 0.5rem;
+            border-radius: 0 8px 8px 0;
+            font-size: 0.875rem;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-muted);
+        }
+        
+        .empty-state i {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+        
+        .empty-state p {
+            font-size: 0.875rem;
+        }
+        
+        .flow-visual {
+            background: var(--bg-input);
+            border-radius: 12px;
+            padding: 1.5rem;
+            min-height: 250px;
+            position: relative;
+            overflow-x: auto;
+        }
+        
+        .flow-nodes {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 0;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
+        }
+        
+        .flow-node {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.375rem;
+            padding: 0.75rem;
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            min-width: 90px;
+            flex-shrink: 0;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        
+        .flow-node:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+        
+        .flow-node.trigger { border-color: var(--success); }
+        .flow-node.process { border-color: var(--primary); }
+        .flow-node.output { border-color: var(--warning); }
+        .flow-node.integration { border-color: #9B59B6; }
+        .flow-node.condition { border-color: #E67E22; }
+        .flow-node.transform { border-color: #1ABC9C; }
+        .flow-node.loop { border-color: #3498DB; }
+        
+        .flow-node-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+        
+        .flow-node.trigger .flow-node-icon { background: rgba(16, 124, 16, 0.2); color: var(--success); }
+        .flow-node.process .flow-node-icon { background: rgba(0, 120, 212, 0.2); color: var(--primary); }
+        .flow-node.output .flow-node-icon { background: rgba(255, 185, 0, 0.2); color: var(--warning); }
+        .flow-node.integration .flow-node-icon { background: rgba(155, 89, 182, 0.2); color: #9B59B6; }
+        .flow-node.condition .flow-node-icon { background: rgba(230, 126, 34, 0.2); color: #E67E22; }
+        .flow-node.transform .flow-node-icon { background: rgba(26, 188, 156, 0.2); color: #1ABC9C; }
+        .flow-node.loop .flow-node-icon { background: rgba(52, 152, 219, 0.2); color: #3498DB; }
+        
+        .flow-node-name {
+            font-size: 0.75rem;
+            font-weight: 600;
+            word-break: break-word;
+        }
+        
+        .flow-node-type {
+            font-size: 0.625rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+        
+        .flow-arrow {
+            color: var(--text-muted);
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+        
+        .flow-actions {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, var(--success), #0a5f0a);
+            color: white;
+        }
+        
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(16, 124, 16, 0.4);
+        }
+        
+        .btn-success:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .execution-result {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: var(--bg-input);
+            border-radius: 10px;
+            border-left: 3px solid var(--primary);
+        }
+        
+        .execution-result.success {
+            border-left-color: var(--success);
+        }
+        
+        .execution-result.error {
+            border-left-color: var(--error);
+        }
+        
+        .execution-result h4 {
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .execution-output {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            background: var(--bg-dark);
+            padding: 1rem;
+            border-radius: 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+        
+        .spinner {
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .history-panel {
+            margin-top: 0;
+        }
+        
+        .history-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .history-item {
+            background: var(--bg-input);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            border-left: 3px solid var(--border);
+            transition: transform 0.2s;
+        }
+        
+        .history-item:hover {
+            transform: translateX(4px);
+        }
+        
+        .history-item.approved {
+            border-left-color: var(--success);
+        }
+        
+        .history-item.rejected {
+            border-left-color: var(--error);
+        }
+        
+        .history-prompt {
+            font-weight: 500;
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+            line-height: 1.4;
+        }
+        
+        .history-meta {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+        
+        .history-meta span {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        
+        .credentials-alert {
+            background: rgba(255, 185, 0, 0.1);
+            border: 1px solid var(--warning);
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-bottom: 1.25rem;
+        }
+        
+        .credentials-alert-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 600;
+            font-size: 1rem;
+            color: var(--warning);
+            margin-bottom: 0.75rem;
+        }
+        
+        .credentials-alert p {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .credentials-list-mini {
+            list-style: none;
+            margin-bottom: 0.75rem;
+        }
+        
+        .credentials-list-mini li {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            background: var(--bg-input);
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+        }
+        
+        .credentials-list-mini li.missing i { color: var(--warning); }
+        .credentials-list-mini li.configured i { color: var(--success); }
+        
+        .badge-missing {
+            background: rgba(255, 185, 0, 0.2);
+            color: var(--warning);
+            padding: 0.125rem 0.5rem;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            margin-left: auto;
+        }
+        
+        .badge-ok {
+            background: rgba(16, 124, 16, 0.2);
+            color: var(--success);
+            padding: 0.125rem 0.5rem;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            margin-left: auto;
+        }
+        
+        .credentials-help {
+            color: var(--text-muted);
+            font-size: 0.8125rem;
+        }
+        
+        .credentials-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .credential-card {
+            background: var(--bg-input);
+            border-radius: 12px;
+            padding: 1.25rem;
+            border-left: 4px solid var(--warning);
+        }
+        
+        .credential-card.configured {
+            border-left-color: var(--success);
+        }
+        
+        .credential-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .credential-title {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .credential-title i {
+            color: var(--primary);
+            font-size: 1.125rem;
+        }
+        
+        .credential-title h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .credential-status {
+            display: flex;
+            align-items: center;
+            gap: 0.375rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .credential-status.ok {
+            background: rgba(16, 124, 16, 0.2);
+            color: var(--success);
+        }
+        
+        .credential-status.missing {
+            background: rgba(255, 185, 0, 0.2);
+            color: var(--warning);
+        }
+        
+        .credential-note {
+            background: rgba(0, 120, 212, 0.1);
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            font-size: 0.875rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .credential-keys {
+            margin-bottom: 1rem;
+        }
+        
+        .credential-keys h5 {
+            font-size: 0.8125rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .credential-key {
+            background: var(--bg-card);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .credential-key code {
+            display: inline-block;
+            background: var(--bg-dark);
+            padding: 0.375rem 0.75rem;
+            border-radius: 6px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.875rem;
+            color: var(--primary);
+            margin-bottom: 0.75rem;
+        }
+        
+        .credential-instruction {
+            margin-top: 0.75rem;
+        }
+        
+        .credential-instruction strong {
+            font-size: 0.8125rem;
+            color: var(--text-secondary);
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+        
+        .credential-instruction pre {
+            background: var(--bg-dark);
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-size: 0.8125rem;
+            white-space: pre-wrap;
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        
+        .credential-docs-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 0.875rem;
+            padding: 0.5rem 1rem;
+            background: rgba(0, 120, 212, 0.1);
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            transition: background 0.2s;
+        }
+        
+        .credential-docs-link:hover {
+            background: rgba(0, 120, 212, 0.2);
+        }
+        
+        .credential-help {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+            font-size: 0.8125rem;
+            color: var(--text-muted);
+            background: var(--bg-card);
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+        }
+        
+        .credential-help i {
+            color: var(--warning);
+            margin-top: 0.125rem;
+        }
+        
+        .credentials-save-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 1.25rem;
+            background: rgba(0, 120, 212, 0.15);
+            border: 1px solid var(--primary);
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .save-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+        
+        .save-info i {
+            color: var(--primary);
+        }
+        
+        .credential-key-input {
+            margin-bottom: 1.25rem;
+        }
+        
+        .credential-key-input label {
+            display: block;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8125rem;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+        
+        .input-with-toggle {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        
+        .credential-input {
+            width: 100%;
+            padding: 0.875rem 3rem 0.875rem 1rem;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.875rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        
+        .credential-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 120, 212, 0.2);
+        }
+        
+        .credential-input::placeholder {
+            font-family: 'Inter', sans-serif;
+            color: var(--text-muted);
+        }
+        
+        .toggle-pass {
+            position: absolute;
+            right: 0.75rem;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 0.5rem;
+            transition: color 0.2s;
+        }
+        
+        .toggle-pass:hover {
+            color: var(--text-primary);
+        }
+        
+        .credential-key-input .credential-instruction {
+            margin-top: 0.75rem;
+            padding: 0.75rem;
+            background: rgba(255, 185, 0, 0.1);
+            border: 1px solid rgba(255, 185, 0, 0.3);
+            border-radius: 8px;
+        }
+        
+        .credential-key-input .credential-instruction strong {
+            color: var(--warning);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .credentials-action {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 185, 0, 0.3);
+        }
+        
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-overlay.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: var(--bg-card);
+            border-radius: 16px;
+            width: 90%;
+            max-width: 450px;
+            border: 1px solid var(--border);
+            animation: modalSlide 0.3s ease;
+        }
+        
+        @keyframes modalSlide {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.25rem;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .modal-header h3 {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.125rem;
+        }
+        
+        .modal-header h3 i {
+            color: var(--primary);
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 1.25rem;
+            padding: 0.25rem;
+        }
+        
+        .modal-close:hover {
+            color: var(--text-primary);
+        }
+        
+        .modal-body {
+            padding: 1.25rem;
+        }
+        
+        .modal-body p {
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+        
+        .interval-selector {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .interval-selector input {
+            flex: 1;
+            padding: 0.75rem;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+        
+        .interval-selector select {
+            padding: 0.75rem;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+        
+        .form-group input[type="checkbox"] {
+            margin-right: 0.5rem;
+        }
+        
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+            padding: 1.25rem;
+            border-top: 1px solid var(--border);
+        }
+        
+        .saved-flows-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .saved-flow-item {
+            background: var(--bg-input);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            border-left: 4px solid var(--primary);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .saved-flow-item:hover {
+            transform: translateX(4px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        .saved-flow-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        
+        .saved-flow-name {
+            font-weight: 600;
+            font-size: 0.9375rem;
+            color: var(--text-primary);
+        }
+        
+        .saved-flow-score {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            background: rgba(255, 185, 0, 0.2);
+            color: var(--warning);
+            border-radius: 12px;
+        }
+        
+        .saved-flow-description {
+            font-size: 0.8125rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.75rem;
+            line-height: 1.4;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+        
+        .saved-flow-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 0.75rem;
+        }
+        
+        .saved-flow-meta span {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        
+        .saved-flow-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .saved-flow-actions button {
+            padding: 0.5rem 0.75rem;
+            font-size: 0.75rem;
+        }
+        
+        .automations-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .automation-item {
+            background: var(--bg-input);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            border-left: 4px solid var(--success);
+        }
+        
+        .automation-item.inactive {
+            border-left-color: var(--text-muted);
+        }
+        
+        .automation-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+        
+        .automation-name {
+            font-weight: 600;
+            font-size: 0.9375rem;
+        }
+        
+        .automation-status {
+            display: flex;
+            align-items: center;
+            gap: 0.375rem;
+            font-size: 0.75rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+        }
+        
+        .automation-status.active {
+            background: rgba(16, 124, 16, 0.2);
+            color: var(--success);
+        }
+        
+        .automation-status.inactive {
+            background: rgba(113, 128, 150, 0.2);
+            color: var(--text-muted);
+        }
+        
+        .automation-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 0.75rem;
+        }
+        
+        .automation-meta span {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        
+        .automation-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .automation-actions button {
+            padding: 0.5rem 0.75rem;
+            font-size: 0.75rem;
+        }
+        
+        .stat-card {
+            padding: 1rem;
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+        }
+        
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 99;
+        }
+        
+        .sidebar-overlay.active {
+            display: block;
+        }
+        
+        .tabs {
+            flex-wrap: wrap;
+        }
+        
+        .tab {
+            font-size: 0.75rem;
+            padding: 0.5rem 0.75rem;
+        }
+        
+        .btn {
+            padding: 0.625rem 1rem;
+            font-size: 0.8rem;
+        }
+        
+        .btn-group {
+            flex-wrap: wrap;
+        }
+        
+        .flow-actions {
+            flex-direction: column;
+        }
+        
+        .flow-actions .btn {
+            width: 100%;
+            justify-content: center;
+        }
+        
+        textarea {
+            min-height: 150px;
+            font-size: 0.9rem;
+        }
+        
+        .panel {
+            padding: 1rem;
+        }
+        
+        .panel-title {
+            font-size: 1rem;
+        }
+        
+        .breadcrumbs .current {
+            max-width: 150px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        @media (min-width: 480px) {
+            .stats-grid {
+                gap: 1rem;
+            }
+            
+            .stat-value {
+                font-size: 1.75rem;
+            }
+            
+            .flow-actions {
+                flex-direction: row;
+            }
+            
+            .flow-actions .btn {
+                width: auto;
+            }
+            
+            .flow-node {
+                min-width: 100px;
+                padding: 0.875rem;
+            }
+            
+            .flow-node-icon {
+                width: 36px;
+                height: 36px;
+                font-size: 1.125rem;
+            }
+            
+            .flow-node-name {
+                font-size: 0.8rem;
+            }
+        }
+        
+        @media (min-width: 768px) {
+            .topbar {
+                padding: 0 1.5rem;
+            }
+            
+            .main-content {
+                padding: 1.5rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            
+            .stat-card {
+                padding: 1.25rem;
+            }
+            
+            .stat-value {
+                font-size: 2rem;
+            }
+            
+            .main-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 1.5rem;
+            }
+            
+            .panel {
+                padding: 1.5rem;
+            }
+            
+            .panel-title {
+                font-size: 1.125rem;
+            }
+            
+            .tab {
+                font-size: 0.8125rem;
+                padding: 0.625rem 1rem;
+            }
+            
+            .btn {
+                padding: 0.75rem 1.5rem;
+                font-size: 0.875rem;
+            }
+            
+            textarea {
+                min-height: 200px;
+                font-size: 1rem;
+            }
+            
+            .breadcrumbs .current {
+                max-width: none;
+            }
+            
+            .flow-node {
+                min-width: 120px;
+                padding: 1rem;
+            }
+            
+            .flow-node-icon {
+                width: 40px;
+                height: 40px;
+                font-size: 1.25rem;
+            }
+            
+            .flow-node-name {
+                font-size: 0.875rem;
+            }
+            
+            .flow-node-type {
+                font-size: 0.7rem;
+            }
+            
+            .flow-arrow {
+                font-size: 1.25rem;
+            }
+        }
+        
+        @media (min-width: 1024px) {
+            .sidebar {
+                transform: translateX(0);
+            }
+            
+            .topbar {
+                left: var(--sidebar-width);
+                padding: 0 2rem;
+            }
+            
+            .main-content {
+                margin-left: var(--sidebar-width);
+                padding: 2rem;
+                max-width: calc(100vw - var(--sidebar-width));
+            }
+            
+            .menu-toggle {
+                display: none;
+            }
+            
+            .main-grid {
+                gap: 2rem;
+            }
+            
+            .stats-grid {
+                margin-bottom: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+    
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <i class="fas fa-robot"></i>
+                <h1>FlowAI</h1>
+            </div>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <div class="nav-section">
+                <div class="nav-section-title">Menu</div>
+                <div class="nav-item active">
+                    <i class="fas fa-wand-magic-sparkles"></i>
+                    <span>Gerador de Fluxos</span>
+                </div>
+                <div class="nav-item" onclick="scrollToHistory()">
+                    <i class="fas fa-history"></i>
+                    <span>Histórico</span>
+                </div>
+                <div class="nav-item" onclick="scrollToSavedFlows()">
+                    <i class="fas fa-bookmark"></i>
+                    <span>Fluxos Salvos</span>
+                </div>
+                <a href="/editor" class="nav-item" style="text-decoration: none;">
+                    <i class="fas fa-project-diagram"></i>
+                    <span>Editor Visual</span>
+                </a>
+            </div>
+            
+            <div class="nav-section">
+                <div class="nav-section-title">Status dos Agentes</div>
+                <div class="agent-status-list">
+                    <div class="agent-item idle" id="sidebar-agent-intent">
+                        <div class="agent-icon"><i class="fas fa-brain"></i></div>
+                        <div class="agent-info">
+                            <div class="agent-name">Agente de Intenção</div>
+                            <div class="agent-status">Aguardando</div>
+                        </div>
+                        <div class="agent-indicator"></div>
+                    </div>
+                    <div class="agent-item idle" id="sidebar-agent-builder">
+                        <div class="agent-icon"><i class="fas fa-hammer"></i></div>
+                        <div class="agent-info">
+                            <div class="agent-name">Agente Construtor</div>
+                            <div class="agent-status">Aguardando</div>
+                        </div>
+                        <div class="agent-indicator"></div>
+                    </div>
+                    <div class="agent-item idle" id="sidebar-agent-architect">
+                        <div class="agent-icon"><i class="fas fa-drafting-compass"></i></div>
+                        <div class="agent-info">
+                            <div class="agent-name">Agente Arquiteto</div>
+                            <div class="agent-status">Aguardando</div>
+                        </div>
+                        <div class="agent-indicator"></div>
+                    </div>
+                    <div class="agent-item idle" id="sidebar-agent-learning">
+                        <div class="agent-icon"><i class="fas fa-graduation-cap"></i></div>
+                        <div class="agent-info">
+                            <div class="agent-name">Agente de Aprendizado</div>
+                            <div class="agent-status">Aguardando</div>
+                        </div>
+                        <div class="agent-indicator"></div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </aside>
+    
+    <header class="topbar">
+        <div style="display: flex; align-items: center; gap: 1rem;">
+            <button class="menu-toggle" onclick="toggleSidebar()">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="breadcrumbs">
+                <span>FlowAI</span>
+                <i class="fas fa-chevron-right" style="font-size: 0.625rem; color: var(--text-muted);"></i>
+                <span class="current">Gerador de Fluxos</span>
+            </div>
+        </div>
+        <div class="topbar-right">
+            <a href="/settings" class="settings-btn" title="Configurações">
+                <i class="fas fa-cog"></i>
+                <span>Configurações</span>
+            </a>
+            <div class="api-status" id="api-status">
+                <i class="fas fa-circle"></i>
+                <span>API Conectada</span>
+            </div>
+        </div>
+    </header>
+    
+    <main class="main-content">
+        <div class="content-wrapper">
+            <div class="stats-grid">
+                <div class="stat-card total">
+                    <div class="stat-header">
+                        <div class="stat-icon"><i class="fas fa-layer-group"></i></div>
+                    </div>
+                    <div class="stat-value" id="stat-total">0</div>
+                    <div class="stat-label">Total de Fluxos</div>
+                </div>
+                <div class="stat-card approved">
+                    <div class="stat-header">
+                        <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+                    </div>
+                    <div class="stat-value" id="stat-approved">0</div>
+                    <div class="stat-label">Aprovados</div>
+                </div>
+                <div class="stat-card rejected">
+                    <div class="stat-header">
+                        <div class="stat-icon"><i class="fas fa-times-circle"></i></div>
+                    </div>
+                    <div class="stat-value" id="stat-rejected">0</div>
+                    <div class="stat-label">Reprovados</div>
+                </div>
+                <div class="stat-card rate">
+                    <div class="stat-header">
+                        <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
+                    </div>
+                    <div class="stat-value" id="stat-rate">0%</div>
+                    <div class="stat-label">Taxa de Aprovação</div>
+                </div>
+            </div>
+            
+            <div class="main-grid">
+                <div class="panel">
+                    <div class="panel-header">
+                        <h2 class="panel-title">
+                            <i class="fas fa-wand-magic-sparkles"></i>
+                            Gerar Novo Fluxo
+                        </h2>
+                    </div>
+                    
+                    <textarea 
+                        id="prompt-input" 
+                        placeholder="Descreva a automação que você deseja criar...&#10;&#10;Exemplo: Crie um fluxo que gere um arquivo .json com uma lista de 10 tarefas aleatórias para produtividade"
+                        maxlength="2000"
+                    ></textarea>
+                    
+                    <div class="input-footer">
+                        <span class="char-count"><span id="char-count">0</span>/2000 caracteres</span>
+                        <div class="btn-group">
+                            <button class="btn btn-secondary" onclick="clearForm()">
+                                <i class="fas fa-eraser"></i>
+                                Limpar
+                            </button>
+                            <button class="btn btn-primary" id="generate-btn" onclick="generateFlow()">
+                                <i class="fas fa-play"></i>
+                                Gerar Fluxo
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="panel response-panel">
+                    <div class="panel-header">
+                        <h2 class="panel-title">
+                            <i class="fas fa-code"></i>
+                            Resultado
+                        </h2>
+                    </div>
+                    
+                    <div id="response-container">
+                        <div class="empty-state">
+                            <i class="fas fa-sparkles"></i>
+                            <p>Descreva sua automação e clique em "Gerar Fluxo" para começar</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="panel saved-flows-panel" id="saved-flows-section">
+                <div class="panel-header">
+                    <h2 class="panel-title">
+                        <i class="fas fa-bookmark"></i>
+                        Fluxos Salvos
+                    </h2>
+                    <button class="btn btn-secondary" onclick="loadSavedFlows()">
+                        <i class="fas fa-sync"></i>
+                    </button>
+                </div>
+                <div class="saved-flows-list" id="saved-flows-container">
+                    <div class="empty-state">
+                        <i class="fas fa-bookmark"></i>
+                        <p>Nenhum fluxo salvo ainda</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="panel automations-panel" id="automations-section">
+                <div class="panel-header">
+                    <h2 class="panel-title">
+                        <i class="fas fa-robot"></i>
+                        Automações Ativas
+                    </h2>
+                    <button class="btn btn-secondary" onclick="loadAutomations()">
+                        <i class="fas fa-sync"></i>
+                    </button>
+                </div>
+                <div class="automations-list" id="automations-container">
+                    <div class="empty-state">
+                        <i class="fas fa-robot"></i>
+                        <p>Nenhuma automação ativa</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="panel history-panel" id="history-section">
+                <div class="panel-header">
+                    <h2 class="panel-title">
+                        <i class="fas fa-history"></i>
+                        Histórico de Fluxos
+                    </h2>
+                </div>
+                <div class="history-list" id="history-container">
+                    <div class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <p>Nenhum fluxo gerado ainda</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <div class="modal-overlay" id="schedule-modal" onclick="closeScheduleModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3><i class="fas fa-clock"></i> Agendar Automação</h3>
+                <button class="modal-close" onclick="closeScheduleModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Configure o intervalo de execução da automação:</p>
+                <div class="form-group">
+                    <label for="interval-input">Executar a cada:</label>
+                    <div class="interval-selector">
+                        <input type="number" id="interval-input" min="1" max="1440" value="60">
+                        <select id="interval-unit">
+                            <option value="1">minutos</option>
+                            <option value="60" selected>horas</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="auto-start" checked>
+                        Iniciar imediatamente
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeScheduleModal()">Cancelar</button>
+                <button class="btn btn-primary" onclick="createAutomation()">
+                    <i class="fas fa-check"></i> Criar Automação
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const promptInput = document.getElementById('prompt-input');
+        const charCount = document.getElementById('char-count');
+        const generateBtn = document.getElementById('generate-btn');
+        
+        promptInput.addEventListener('input', function() {
+            charCount.textContent = this.value.length;
+        });
+        
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('sidebar-overlay').classList.toggle('active');
+        }
+        
+        function scrollToHistory() {
+            document.getElementById('history-section').scrollIntoView({ behavior: 'smooth' });
+            if (window.innerWidth <= 768) toggleSidebar();
+        }
+        
+        function resetAgents() {
+            const agents = ['sidebar-agent-intent', 'sidebar-agent-builder', 'sidebar-agent-architect', 'sidebar-agent-learning'];
+            agents.forEach(id => {
+                const el = document.getElementById(id);
+                el.classList.remove('active', 'complete', 'error');
+                el.classList.add('idle');
+                el.querySelector('.agent-status').textContent = 'Aguardando';
+            });
+        }
+        
+        function setAgentStatus(agentId, status, statusText) {
+            const el = document.getElementById('sidebar-' + agentId);
+            el.classList.remove('idle', 'active', 'complete', 'error');
+            el.classList.add(status);
+            el.querySelector('.agent-status').textContent = statusText;
+        }
+        
+        async function generateFlow() {
+            const prompt = promptInput.value.trim();
+            
+            if (!prompt) {
+                alert('Por favor, descreva a automação que você deseja criar.');
+                return;
+            }
+            
+            generateBtn.disabled = true;
+            generateBtn.innerHTML = '<i class="fas fa-spinner spinner"></i> Processando...';
+            resetAgents();
+            
+            const responseContainer = document.getElementById('response-container');
+            responseContainer.innerHTML = `
+                <div class="status-banner processing">
+                    <i class="fas fa-spinner spinner"></i>
+                    <span>Processando sua solicitação com os agentes de IA...</span>
+                </div>
+            `;
+            
+            setAgentStatus('agent-intent', 'active', 'Analisando...');
+            
+            try {
+                const response = await fetch('/generate-flow', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt })
+                });
+                
+                const data = await response.json();
+                
+                setAgentStatus('agent-intent', 'complete', 'Concluído');
+                setAgentStatus('agent-builder', 'complete', 'Concluído');
+                setAgentStatus('agent-architect', 'complete', 'Concluído');
+                setAgentStatus('agent-learning', 'complete', 'Salvo');
+                
+                if (response.ok) {
+                    displayResult(data);
+                } else {
+                    displayError(data.error || 'Erro ao processar a solicitação');
+                }
+                
+                loadStats();
+                loadHistory();
+                
+            } catch (error) {
+                displayError('Erro de conexão: ' + error.message);
+                setAgentStatus('agent-intent', 'error', 'Erro');
+            } finally {
+                generateBtn.disabled = false;
+                generateBtn.innerHTML = '<i class="fas fa-play"></i> Gerar Fluxo';
+            }
+        }
+        
+        let currentFlowData = null;
+        
+        function displayResult(data) {
+            const container = document.getElementById('response-container');
+            const isApproved = data.status === 'approved';
+            currentFlowData = data;
+            
+            let html = `
+                <div class="status-banner ${isApproved ? 'approved' : 'rejected'}">
+                    <i class="fas ${isApproved ? 'fa-check-circle' : 'fa-times-circle'}"></i>
+                    <div>
+                        <strong>${isApproved ? 'Fluxo Aprovado!' : 'Fluxo Reprovado'}</strong>
+                        ${data.validation?.score ? ` - Score: ${data.validation.score}/100` : ''}
+                    </div>
+                </div>
+            `;
+            
+            if (data.intent?.required_credentials && data.intent.required_credentials.length > 0) {
+                html += renderCredentialsRequired(data.intent.required_credentials);
+            }
+            
+            if (!isApproved && data.errors && data.errors.length > 0) {
+                html += `
+                    <ul class="error-list">
+                        ${data.errors.map(err => `<li><i class="fas fa-exclamation-triangle"></i> ${err}</li>`).join('')}
+                    </ul>
+                `;
+            }
+            
+            html += `
+                <div class="tabs">
+                    <button class="tab active" onclick="showTab('visual', this)">Visual</button>
+                    <button class="tab" onclick="showTab('credentials', this)">Credenciais</button>
+                    <button class="tab" onclick="showTab('intent', this)">Intenção</button>
+                    <button class="tab" onclick="showTab('flow', this)">Fluxo JSON</button>
+                    <button class="tab" onclick="showTab('validation', this)">Validação</button>
+                </div>
+                
+                <div id="tab-visual" class="tab-content active">
+                    <div class="flow-visual">
+                        <div class="flow-nodes" id="flow-nodes-container">
+                            ${renderFlowNodes(data.flow)}
+                        </div>
+                        <div class="flow-actions">
+                            <button class="btn btn-success" id="run-real-btn" onclick="runFlowReal()" ${!isApproved ? 'disabled' : ''}>
+                                <i class="fas fa-bolt"></i>
+                                Executar Agora
+                            </button>
+                            <button class="btn btn-primary" id="schedule-btn" onclick="showScheduleModal()" ${!isApproved ? 'disabled' : ''}>
+                                <i class="fas fa-clock"></i>
+                                Agendar
+                            </button>
+                            <button class="btn btn-secondary" onclick="saveCurrentFlow()" ${!isApproved ? 'disabled' : ''}>
+                                <i class="fas fa-bookmark"></i>
+                                Salvar Fluxo
+                            </button>
+                            <button class="btn btn-secondary" onclick="runFlow()">
+                                <i class="fas fa-file-alt"></i>
+                                Gerar Arquivo
+                            </button>
+                            <button class="btn btn-primary" onclick="editInVisualEditor()" ${!isApproved ? 'disabled' : ''} style="background: linear-gradient(135deg, #9B59B6, #8E44AD);">
+                                <i class="fas fa-edit"></i>
+                                Editar no Editor Visual
+                            </button>
+                        </div>
+                        <div id="execution-result-container"></div>
+                    </div>
+                </div>
+                
+                <div id="tab-credentials" class="tab-content">
+                    ${renderCredentialsTab(data.intent?.required_credentials || [])}
+                </div>
+                
+                <div id="tab-intent" class="tab-content">
+                    <div class="json-container">
+                        <pre>${JSON.stringify(data.intent, null, 2)}</pre>
+                    </div>
+                </div>
+                
+                <div id="tab-flow" class="tab-content">
+                    <div class="json-container">
+                        <pre>${JSON.stringify(data.flow, null, 2)}</pre>
+                    </div>
+                </div>
+                
+                <div id="tab-validation" class="tab-content">
+                    <div class="json-container">
+                        <pre>${JSON.stringify(data.validation, null, 2)}</pre>
+                    </div>
+                </div>
+            `;
+            
+            container.innerHTML = html;
+        }
+        
+        function renderCredentialsRequired(credentials) {
+            if (!credentials || credentials.length === 0) return '';
+            
+            const hasUnconfigured = credentials.some(cred => !cred.configured && cred.keys.length > 0);
+            
+            if (!hasUnconfigured) return '';
+            
+            return `
+                <div class="credentials-alert">
+                    <div class="credentials-alert-header">
+                        <i class="fas fa-key"></i>
+                        <span>Credenciais Necessárias</span>
+                    </div>
+                    <p>Este fluxo requer as seguintes configurações para funcionar:</p>
+                    <ul class="credentials-list-mini">
+                        ${credentials.filter(c => c.keys.length > 0).map(cred => `
+                            <li class="${cred.configured ? 'configured' : 'missing'}">
+                                <i class="fas ${cred.configured ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+                                <strong>${escapeHtml(cred.name)}</strong>
+                                ${!cred.configured ? '<span class="badge-missing">Não configurado</span>' : '<span class="badge-ok">Configurado</span>'}
+                            </li>
+                        `).join('')}
+                    </ul>
+                    <div class="credentials-action">
+                        <button class="btn btn-primary" onclick="showTab('credentials', document.querySelector('.tab:nth-child(2)'))">
+                            <i class="fas fa-key"></i>
+                            Configurar Credenciais Agora
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function renderCredentialsTab(credentials) {
+            if (!credentials || credentials.length === 0) {
+                return `
+                    <div class="empty-state">
+                        <i class="fas fa-check-circle" style="color: var(--success);"></i>
+                        <p>Este fluxo não requer credenciais externas</p>
+                    </div>
+                `;
+            }
+            
+            return `
+                <div class="credentials-container">
+                    <div class="credentials-save-bar">
+                        <div class="save-info">
+                            <i class="fas fa-info-circle"></i>
+                            <span>Preencha as credenciais abaixo e clique em <strong>Salvar Configurações</strong></span>
+                        </div>
+                        <button class="btn btn-primary" onclick="saveInlineCredentials()">
+                            <i class="fas fa-save"></i> Salvar Configurações
+                        </button>
+                    </div>
+                    ${credentials.map(cred => `
+                        <div class="credential-card ${cred.configured ? 'configured' : 'missing'}" data-integration="${escapeHtml(cred.integration)}">
+                            <div class="credential-header">
+                                <div class="credential-title">
+                                    <i class="fas fa-plug"></i>
+                                    <h4>${escapeHtml(cred.name)}</h4>
+                                </div>
+                                <span class="credential-status ${cred.configured ? 'ok' : 'missing'}" id="status-${escapeHtml(cred.integration)}">
+                                    <i class="fas ${cred.configured ? 'fa-check' : 'fa-times'}"></i>
+                                    ${cred.configured ? 'Configurado' : 'Pendente'}
+                                </span>
+                            </div>
+                            
+                            ${cred.note ? `<p class="credential-note"><i class="fas fa-info-circle"></i> ${escapeHtml(cred.note)}</p>` : ''}
+                            
+                            ${cred.keys.length > 0 ? `
+                                <div class="credential-keys">
+                                    <h5>Configure as credenciais:</h5>
+                                    ${cred.keys.map(key => `
+                                        <div class="credential-key-input">
+                                            <label for="cred-${escapeHtml(key)}">${escapeHtml(key)}</label>
+                                            <div class="input-with-toggle">
+                                                <input type="password" 
+                                                       id="cred-${escapeHtml(key)}" 
+                                                       class="credential-input" 
+                                                       data-key="${escapeHtml(key)}"
+                                                       data-integration="${escapeHtml(cred.integration)}"
+                                                       placeholder="Cole seu ${escapeHtml(key)} aqui..."
+                                                       autocomplete="off">
+                                                <button type="button" class="toggle-pass" onclick="togglePasswordVisibility('cred-${escapeHtml(key)}')">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                            </div>
+                                            ${cred.instructions[key] ? `
+                                                <div class="credential-instruction">
+                                                    <strong><i class="fas fa-info-circle"></i> Como obter:</strong>
+                                                    <pre>${escapeHtml(cred.instructions[key])}</pre>
+                                                </div>
+                                            ` : ''}
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            ` : ''}
+                            
+                            ${cred.docs_url ? `
+                                <a href="${escapeHtml(cred.docs_url)}" target="_blank" class="credential-docs-link">
+                                    <i class="fas fa-external-link-alt"></i> Ver documentação oficial
+                                </a>
+                            ` : ''}
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+        
+        function togglePasswordVisibility(inputId) {
+            const input = document.getElementById(inputId);
+            const icon = input.nextElementSibling.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+        
+        async function saveInlineCredentials() {
+            const inputs = document.querySelectorAll('.credential-input');
+            const configurations = [];
+            
+            inputs.forEach(input => {
+                const key = input.dataset.key;
+                const value = input.value.trim();
+                const integration = input.dataset.integration;
+                
+                if (key && value) {
+                    configurations.push({ key, value, integration });
+                }
+            });
+            
+            if (configurations.length === 0) {
+                alert('Preencha pelo menos uma credencial antes de salvar.');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/configurations', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ configurations: configurations })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    alert('Configurações salvas com sucesso! Agora você pode executar ou agendar a automação.');
+                    
+                    configurations.forEach(config => {
+                        const statusEl = document.getElementById('status-' + config.integration);
+                        if (statusEl) {
+                            statusEl.innerHTML = '<i class="fas fa-check"></i> Configurado';
+                            statusEl.classList.remove('missing');
+                            statusEl.classList.add('ok');
+                        }
+                        const card = document.querySelector(`.credential-card[data-integration="${config.integration}"]`);
+                        if (card) {
+                            card.classList.remove('missing');
+                            card.classList.add('configured');
+                        }
+                    });
+                    
+                    if (currentFlowData && currentFlowData.intent && currentFlowData.intent.required_credentials) {
+                        currentFlowData.intent.required_credentials.forEach(cred => {
+                            const configuredKeys = configurations.map(c => c.key);
+                            if (cred.keys.every(k => configuredKeys.includes(k))) {
+                                cred.configured = true;
+                            }
+                        });
+                    }
+                } else {
+                    alert('Erro ao salvar: ' + (data.error || 'Erro desconhecido'));
+                }
+            } catch (error) {
+                alert('Erro de conexão: ' + error.message);
+            }
+        }
+        
+        function getNodeIcon(type) {
+            const icons = {
+                'trigger': 'fa-bolt',
+                'process': 'fa-cog',
+                'output': 'fa-file-export',
+                'integration': 'fa-plug',
+                'condition': 'fa-code-branch',
+                'transform': 'fa-exchange-alt',
+                'loop': 'fa-sync'
+            };
+            return icons[type] || 'fa-circle';
+        }
+        
+        function renderFlowNodes(flow) {
+            if (!flow || !flow.nodes || flow.nodes.length === 0) {
+                return '<div class="empty-state"><i class="fas fa-project-diagram"></i><p>Nenhum nó no fluxo</p></div>';
+            }
+            
+            let html = '';
+            flow.nodes.forEach((node, index) => {
+                html += `
+                    <div class="flow-node ${node.type}">
+                        <div class="flow-node-icon">
+                            <i class="fas ${getNodeIcon(node.type)}"></i>
+                        </div>
+                        <div class="flow-node-name">${escapeHtml(node.name)}</div>
+                        <div class="flow-node-type">${node.type}</div>
+                    </div>
+                `;
+                if (index < flow.nodes.length - 1) {
+                    html += '<div class="flow-arrow"><i class="fas fa-arrow-right"></i></div>';
+                }
+            });
+            
+            return html;
+        }
+        
+        async function runFlow() {
+            if (!currentFlowData || !currentFlowData.flow) {
+                alert('Nenhum fluxo disponível para executar');
+                return;
+            }
+            
+            const runBtn = document.getElementById('run-flow-btn');
+            const resultContainer = document.getElementById('execution-result-container');
+            
+            runBtn.disabled = true;
+            runBtn.innerHTML = '<i class="fas fa-spinner spinner"></i> Executando...';
+            
+            resultContainer.innerHTML = `
+                <div class="execution-result">
+                    <h4><i class="fas fa-spinner spinner"></i> Executando automação...</h4>
+                </div>
+            `;
+            
+            try {
+                const response = await fetch('/execute-flow', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        flow: currentFlowData.flow,
+                        intent: currentFlowData.intent
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    resultContainer.innerHTML = `
+                        <div class="execution-result success">
+                            <h4><i class="fas fa-check-circle" style="color: var(--success)"></i> Execução Concluída</h4>
+                            <div class="execution-output">${escapeHtml(data.output || 'Automação executada com sucesso!')}</div>
+                            ${data.file_created ? `<p style="margin-top: 0.5rem; font-size: 0.875rem; color: var(--text-secondary);"><i class="fas fa-file"></i> Arquivo criado: ${escapeHtml(data.file_created)}</p>` : ''}
+                        </div>
+                    `;
+                } else {
+                    resultContainer.innerHTML = `
+                        <div class="execution-result error">
+                            <h4><i class="fas fa-times-circle" style="color: var(--error)"></i> Erro na Execução</h4>
+                            <div class="execution-output">${escapeHtml(data.error || 'Erro desconhecido')}</div>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultContainer.innerHTML = `
+                    <div class="execution-result error">
+                        <h4><i class="fas fa-times-circle" style="color: var(--error)"></i> Erro de Conexão</h4>
+                        <div class="execution-output">${escapeHtml(error.message)}</div>
+                    </div>
+                `;
+            } finally {
+                runBtn.disabled = false;
+                runBtn.innerHTML = '<i class="fas fa-play"></i> Executar Automação';
+            }
+        }
+        
+        function displayError(message) {
+            const container = document.getElementById('response-container');
+            container.innerHTML = `
+                <div class="status-banner rejected">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+        }
+        
+        function showTab(tabName, btnEl) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            btnEl.classList.add('active');
+            document.getElementById('tab-' + tabName).classList.add('active');
+        }
+        
+        function clearForm() {
+            promptInput.value = '';
+            charCount.textContent = '0';
+            resetAgents();
+            document.getElementById('response-container').innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-sparkles"></i>
+                    <p>Descreva sua automação e clique em "Gerar Fluxo" para começar</p>
+                </div>
+            `;
+        }
+        
+        async function loadStats() {
+            try {
+                const response = await fetch('/stats');
+                const data = await response.json();
+                
+                document.getElementById('stat-total').textContent = data.total_flows;
+                document.getElementById('stat-approved').textContent = data.approved;
+                document.getElementById('stat-rejected').textContent = data.rejected;
+                document.getElementById('stat-rate').textContent = data.approval_rate + '%';
+            } catch (error) {
+                console.error('Erro ao carregar estatísticas:', error);
+            }
+        }
+        
+        async function loadHistory() {
+            try {
+                const response = await fetch('/history');
+                const data = await response.json();
+                
+                const container = document.getElementById('history-container');
+                
+                if (data.recent_flows && data.recent_flows.length > 0) {
+                    container.innerHTML = data.recent_flows.map(flow => `
+                        <div class="history-item ${flow.approved ? 'approved' : 'rejected'}">
+                            <div class="history-prompt">${escapeHtml(flow.prompt.substring(0, 120))}${flow.prompt.length > 120 ? '...' : ''}</div>
+                            <div class="history-meta">
+                                <span><i class="fas fa-clock"></i> ${new Date(flow.timestamp).toLocaleString('pt-BR')}</span>
+                                <span><i class="fas ${flow.approved ? 'fa-check' : 'fa-times'}"></i> ${flow.approved ? 'Aprovado' : 'Reprovado'}</span>
+                                <span><i class="fas fa-star"></i> Score: ${flow.score || 0}</span>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-inbox"></i>
+                            <p>Nenhum fluxo gerado ainda</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Erro ao carregar histórico:', error);
+            }
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        async function checkApiStatus() {
+            try {
+                const response = await fetch('/health');
+                const statusEl = document.getElementById('api-status');
+                if (response.ok) {
+                    statusEl.classList.remove('error');
+                    statusEl.innerHTML = '<i class="fas fa-circle"></i><span>API Conectada</span>';
+                } else {
+                    throw new Error('API error');
+                }
+            } catch (error) {
+                const statusEl = document.getElementById('api-status');
+                statusEl.classList.add('error');
+                statusEl.innerHTML = '<i class="fas fa-circle"></i><span>API Offline</span>';
+            }
+        }
+        
+        async function runFlowReal() {
+            if (!currentFlowData || !currentFlowData.flow) {
+                alert('Nenhum fluxo disponível para executar');
+                return;
+            }
+            
+            const runBtn = document.getElementById('run-real-btn');
+            const resultContainer = document.getElementById('execution-result-container');
+            
+            runBtn.disabled = true;
+            runBtn.innerHTML = '<i class="fas fa-spinner spinner"></i> Executando...';
+            
+            resultContainer.innerHTML = `
+                <div class="execution-result">
+                    <h4><i class="fas fa-spinner spinner"></i> Executando automação com APIs reais...</h4>
+                </div>
+            `;
+            
+            try {
+                const response = await fetch('/execute-real', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        flow: currentFlowData.flow,
+                        intent: currentFlowData.intent
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    resultContainer.innerHTML = `
+                        <div class="execution-result success">
+                            <h4><i class="fas fa-check-circle" style="color: var(--success)"></i> Execução Real Concluída</h4>
+                            <div class="execution-output">${escapeHtml(data.output || 'Automação executada com sucesso!')}</div>
+                        </div>
+                    `;
+                } else {
+                    resultContainer.innerHTML = `
+                        <div class="execution-result error">
+                            <h4><i class="fas fa-times-circle" style="color: var(--error)"></i> Erro na Execução</h4>
+                            <div class="execution-output">${escapeHtml(data.error || 'Erro desconhecido')}</div>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultContainer.innerHTML = `
+                    <div class="execution-result error">
+                        <h4><i class="fas fa-times-circle" style="color: var(--error)"></i> Erro de Conexão</h4>
+                        <div class="execution-output">${escapeHtml(error.message)}</div>
+                    </div>
+                `;
+            } finally {
+                runBtn.disabled = false;
+                runBtn.innerHTML = '<i class="fas fa-bolt"></i> Executar Agora';
+            }
+        }
+        
+        function showScheduleModal() {
+            document.getElementById('schedule-modal').classList.add('active');
+        }
+        
+        function closeScheduleModal(event) {
+            if (!event || event.target === document.getElementById('schedule-modal')) {
+                document.getElementById('schedule-modal').classList.remove('active');
+            }
+        }
+        
+        async function createAutomation() {
+            if (!currentFlowData || !currentFlowData.flow) {
+                alert('Nenhum fluxo disponível');
+                return;
+            }
+            
+            const intervalValue = parseInt(document.getElementById('interval-input').value);
+            const intervalUnit = parseInt(document.getElementById('interval-unit').value);
+            const autoStart = document.getElementById('auto-start').checked;
+            const intervalMinutes = intervalValue * intervalUnit;
+            
+            try {
+                const response = await fetch('/automations', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        flow: currentFlowData.flow,
+                        intent: currentFlowData.intent,
+                        interval_minutes: intervalMinutes,
+                        auto_start: autoStart
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    closeScheduleModal();
+                    alert('Automação criada com sucesso! Ela será executada a cada ' + intervalMinutes + ' minutos.');
+                    loadAutomations();
+                } else {
+                    if (data.missing_credentials) {
+                        alert('Credenciais não configuradas: ' + data.missing_credentials.join(', ') + '\n\nConfigure as credenciais antes de criar a automação.');
+                    } else {
+                        alert('Erro: ' + (data.error || 'Erro desconhecido'));
+                    }
+                }
+            } catch (error) {
+                alert('Erro de conexão: ' + error.message);
+            }
+        }
+        
+        async function loadAutomations() {
+            try {
+                const response = await fetch('/automations');
+                const automations = await response.json();
+                
+                const container = document.getElementById('automations-container');
+                
+                if (automations && automations.length > 0) {
+                    container.innerHTML = automations.map(auto => `
+                        <div class="automation-item ${auto.active ? '' : 'inactive'}">
+                            <div class="automation-header">
+                                <span class="automation-name">${escapeHtml(auto.name)}</span>
+                                <span class="automation-status ${auto.active ? 'active' : 'inactive'}">
+                                    <i class="fas ${auto.active ? 'fa-circle' : 'fa-pause'}"></i>
+                                    ${auto.active ? 'Ativa' : 'Pausada'}
+                                </span>
+                            </div>
+                            <div class="automation-meta">
+                                <span><i class="fas fa-clock"></i> A cada ${auto.interval_minutes} min</span>
+                                <span><i class="fas fa-play"></i> ${auto.run_count} execuções</span>
+                                ${auto.last_run ? `<span><i class="fas fa-history"></i> ${new Date(auto.last_run).toLocaleString('pt-BR')}</span>` : ''}
+                            </div>
+                            <div class="automation-actions">
+                                ${auto.active ? 
+                                    `<button class="btn btn-secondary" onclick="stopAutomation('${auto.id}')"><i class="fas fa-pause"></i> Pausar</button>` :
+                                    `<button class="btn btn-success" onclick="startAutomation('${auto.id}')"><i class="fas fa-play"></i> Iniciar</button>`
+                                }
+                                <button class="btn btn-primary" onclick="runAutomationOnce('${auto.id}')"><i class="fas fa-bolt"></i> Executar</button>
+                                <button class="btn btn-secondary" onclick="deleteAutomation('${auto.id}')" style="color: var(--error);"><i class="fas fa-trash"></i></button>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-robot"></i>
+                            <p>Nenhuma automação ativa</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Erro ao carregar automações:', error);
+            }
+        }
+        
+        async function startAutomation(autoId) {
+            try {
+                await fetch(`/automations/${autoId}/start`, { method: 'POST' });
+                loadAutomations();
+            } catch (error) {
+                alert('Erro ao iniciar: ' + error.message);
+            }
+        }
+        
+        async function stopAutomation(autoId) {
+            try {
+                await fetch(`/automations/${autoId}/stop`, { method: 'POST' });
+                loadAutomations();
+            } catch (error) {
+                alert('Erro ao pausar: ' + error.message);
+            }
+        }
+        
+        async function runAutomationOnce(autoId) {
+            try {
+                const response = await fetch(`/automations/${autoId}/run`, { method: 'POST' });
+                const data = await response.json();
+                if (data.success) {
+                    alert('Automação executada com sucesso!');
+                    loadAutomations();
+                } else {
+                    alert('Erro: ' + (data.error || 'Erro desconhecido'));
+                }
+            } catch (error) {
+                alert('Erro: ' + error.message);
+            }
+        }
+        
+        async function deleteAutomation(autoId) {
+            if (!confirm('Deseja remover esta automação?')) return;
+            
+            try {
+                await fetch(`/automations/${autoId}`, { method: 'DELETE' });
+                loadAutomations();
+            } catch (error) {
+                alert('Erro ao remover: ' + error.message);
+            }
+        }
+        
+        function scrollToSavedFlows() {
+            document.getElementById('saved-flows-section').scrollIntoView({ behavior: 'smooth' });
+            if (window.innerWidth <= 768) toggleSidebar();
+        }
+        
+        async function editInVisualEditor() {
+            if (!currentFlowData || !currentFlowData.flow) {
+                alert('Nenhum fluxo disponível para editar');
+                return;
+            }
+            
+            const btn = document.querySelector('[onclick="editInVisualEditor()"]');
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner spinner"></i> Importando...';
+            }
+            
+            try {
+                const response = await fetch('/api/projects/import-flow', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        flow: currentFlowData.flow,
+                        intent: currentFlowData.intent
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    window.location.href = '/editor/' + data.project_id;
+                } else {
+                    alert('Erro ao importar: ' + (data.error || 'Erro desconhecido'));
+                    if (btn) {
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fas fa-edit"></i> Editar no Editor Visual';
+                    }
+                }
+            } catch (error) {
+                alert('Erro de conexão: ' + error.message);
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-edit"></i> Editar no Editor Visual';
+                }
+            }
+        }
+        
+        async function saveCurrentFlow() {
+            if (!currentFlowData || !currentFlowData.flow) {
+                alert('Nenhum fluxo disponível para salvar');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/saved-flows', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        flow: currentFlowData.flow,
+                        intent: currentFlowData.intent,
+                        prompt: promptInput.value.trim(),
+                        validation_score: currentFlowData.validation?.score || 0
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    alert('Fluxo salvo com sucesso! Você pode executá-lo mais tarde na seção "Fluxos Salvos".');
+                    loadSavedFlows();
+                } else {
+                    alert('Erro ao salvar: ' + (data.error || 'Erro desconhecido'));
+                }
+            } catch (error) {
+                alert('Erro de conexão: ' + error.message);
+            }
+        }
+        
+        async function loadSavedFlows() {
+            try {
+                const response = await fetch('/saved-flows');
+                const flows = await response.json();
+                
+                const container = document.getElementById('saved-flows-container');
+                
+                if (flows && flows.length > 0) {
+                    container.innerHTML = flows.map(flow => `
+                        <div class="saved-flow-item" data-flow-id="${flow.id}">
+                            <div class="saved-flow-header">
+                                <span class="saved-flow-name">${escapeHtml(flow.name)}</span>
+                                <span class="saved-flow-score">
+                                    <i class="fas fa-star"></i>
+                                    ${flow.validation_score || 0}
+                                </span>
+                            </div>
+                            <div class="saved-flow-description">${escapeHtml(flow.description || flow.prompt?.substring(0, 100) || '')}</div>
+                            <div class="saved-flow-meta">
+                                <span><i class="fas fa-play"></i> ${flow.execution_count || 0} execuções</span>
+                                ${flow.last_executed ? `<span><i class="fas fa-clock"></i> ${new Date(flow.last_executed).toLocaleString('pt-BR')}</span>` : ''}
+                                <span><i class="fas fa-calendar"></i> ${new Date(flow.created_at).toLocaleDateString('pt-BR')}</span>
+                            </div>
+                            <div class="saved-flow-actions">
+                                <button class="btn btn-success" onclick="executeSavedFlow(${flow.id})">
+                                    <i class="fas fa-bolt"></i> Executar
+                                </button>
+                                <button class="btn btn-primary" onclick="scheduleSavedFlow(${flow.id})">
+                                    <i class="fas fa-clock"></i> Agendar
+                                </button>
+                                <button class="btn btn-secondary" onclick="deleteSavedFlow(${flow.id})" style="color: var(--error);">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-bookmark"></i>
+                            <p>Nenhum fluxo salvo ainda</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Erro ao carregar fluxos salvos:', error);
+            }
+        }
+        
+        async function executeSavedFlow(flowId) {
+            const btn = event.target.closest('button');
+            const originalContent = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner spinner"></i>';
+            
+            try {
+                const response = await fetch(`/saved-flows/${flowId}/execute`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    alert('Fluxo executado com sucesso!\n\n' + (data.output || ''));
+                    loadSavedFlows();
+                } else {
+                    alert('Erro na execução: ' + (data.error || 'Erro desconhecido'));
+                }
+            } catch (error) {
+                alert('Erro de conexão: ' + error.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalContent;
+            }
+        }
+        
+        let savedFlowToSchedule = null;
+        
+        async function scheduleSavedFlow(flowId) {
+            savedFlowToSchedule = flowId;
+            document.getElementById('schedule-modal').classList.add('active');
+        }
+        
+        async function createAutomationFromSavedFlow() {
+            if (!savedFlowToSchedule) return;
+            
+            const intervalValue = parseInt(document.getElementById('interval-input').value);
+            const intervalUnit = parseInt(document.getElementById('interval-unit').value);
+            const autoStart = document.getElementById('auto-start').checked;
+            const intervalMinutes = intervalValue * intervalUnit;
+            
+            try {
+                const response = await fetch(`/saved-flows/${savedFlowToSchedule}/schedule`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        interval_minutes: intervalMinutes,
+                        auto_start: autoStart
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    closeScheduleModal();
+                    alert('Fluxo agendado com sucesso! Ele será executado a cada ' + intervalMinutes + ' minutos.');
+                    loadAutomations();
+                    savedFlowToSchedule = null;
+                } else {
+                    if (data.missing_credentials) {
+                        alert('Credenciais não configuradas: ' + data.missing_credentials.join(', ') + '\n\nConfigure as credenciais antes de agendar.');
+                    } else {
+                        alert('Erro: ' + (data.error || 'Erro desconhecido'));
+                    }
+                }
+            } catch (error) {
+                alert('Erro de conexão: ' + error.message);
+            }
+        }
+        
+        async function deleteSavedFlow(flowId) {
+            if (!confirm('Deseja remover este fluxo salvo?')) return;
+            
+            try {
+                await fetch(`/saved-flows/${flowId}`, { method: 'DELETE' });
+                loadSavedFlows();
+            } catch (error) {
+                alert('Erro ao remover: ' + error.message);
+            }
+        }
+        
+        const originalCreateAutomation = createAutomation;
+        async function createAutomation() {
+            if (savedFlowToSchedule) {
+                await createAutomationFromSavedFlow();
+            } else {
+                await originalCreateAutomation.call(this);
+            }
+        }
+        
+        loadStats();
+        loadHistory();
+        loadAutomations();
+        loadSavedFlows();
+        checkApiStatus();
+        setInterval(checkApiStatus, 30000);
+        setInterval(loadAutomations, 60000);
+    </script>
+</body>
+</html>

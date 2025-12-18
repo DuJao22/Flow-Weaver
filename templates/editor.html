@@ -1,0 +1,1828 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ project.name }} - FlowAI Editor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #0078D4;
+            --primary-dark: #005A9E;
+            --success: #107C10;
+            --error: #D13438;
+            --warning: #FFB900;
+            --bg-dark: #1A1A2E;
+            --bg-sidebar: #0F0F1A;
+            --bg-card: #16213E;
+            --bg-input: #0F3460;
+            --bg-canvas: #0a0a14;
+            --text-primary: #FFFFFF;
+            --text-secondary: #A0AEC0;
+            --text-muted: #718096;
+            --border: #2D3748;
+            --node-trigger: #107C10;
+            --node-action: #0078D4;
+            --node-data: #9B59B6;
+            --node-flow: #E67E22;
+            --node-output: #FFB900;
+            --node-ai: #00CED1;
+        }
+        html, body { height: 100%; overflow: hidden; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            display: flex;
+            flex-direction: column;
+        }
+        .toolbar {
+            height: 50px;
+            background: var(--bg-sidebar);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            padding: 0 1rem;
+            gap: 1rem;
+            flex-shrink: 0;
+        }
+        .toolbar-left { display: flex; align-items: center; gap: 1rem; }
+        .toolbar-center { flex: 1; display: flex; justify-content: center; gap: 0.5rem; }
+        .toolbar-right { display: flex; align-items: center; gap: 0.75rem; }
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+        .back-btn:hover { background: var(--border); color: var(--text-primary); }
+        .project-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .zoom-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            background: var(--bg-input);
+            border-radius: 8px;
+            padding: 0.25rem;
+        }
+        .zoom-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .zoom-btn:hover { background: var(--border); color: var(--text-primary); }
+        .zoom-level {
+            padding: 0 0.5rem;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            min-width: 50px;
+            text-align: center;
+        }
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+        }
+        .btn-primary:hover { box-shadow: 0 2px 10px rgba(0, 120, 212, 0.4); }
+        .btn-success {
+            background: linear-gradient(135deg, var(--success), #0a5f0a);
+            color: white;
+        }
+        .btn-success:hover { box-shadow: 0 2px 10px rgba(16, 124, 16, 0.4); }
+        .btn-secondary {
+            background: var(--bg-input);
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+        }
+        .btn-secondary:hover { background: var(--border); }
+        .main-container {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+        .palette {
+            width: 260px;
+            background: var(--bg-sidebar);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+        .palette-header {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+        .palette-header h3 {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+        .palette-search {
+            margin-top: 0.75rem;
+        }
+        .palette-search input {
+            width: 100%;
+            padding: 0.5rem 0.75rem;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-size: 0.8rem;
+        }
+        .palette-search input:focus { outline: none; border-color: var(--primary); }
+        .palette-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0.5rem;
+        }
+        .palette-category {
+            margin-bottom: 1rem;
+        }
+        .category-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+        .category-header i { font-size: 0.625rem; }
+        .category-items { display: grid; gap: 0.5rem; }
+        .palette-node {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.625rem 0.75rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            cursor: grab;
+            transition: all 0.2s;
+        }
+        .palette-node:hover {
+            border-color: var(--primary);
+            transform: translateX(4px);
+        }
+        .palette-node:active { cursor: grabbing; }
+        .palette-node-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.875rem;
+        }
+        .palette-node[data-category="trigger"] .palette-node-icon { background: rgba(16, 124, 16, 0.2); color: var(--node-trigger); }
+        .palette-node[data-category="action"] .palette-node-icon { background: rgba(0, 120, 212, 0.2); color: var(--node-action); }
+        .palette-node[data-category="data"] .palette-node-icon { background: rgba(155, 89, 182, 0.2); color: var(--node-data); }
+        .palette-node[data-category="flow"] .palette-node-icon { background: rgba(230, 126, 34, 0.2); color: var(--node-flow); }
+        .palette-node[data-category="output"] .palette-node-icon { background: rgba(255, 185, 0, 0.2); color: var(--node-output); }
+        .palette-node[data-category="ai"] .palette-node-icon { background: rgba(0, 206, 209, 0.2); color: var(--node-ai); }
+        .palette-node-info { flex: 1; min-width: 0; }
+        .palette-node-name { font-size: 0.8rem; font-weight: 500; }
+        .palette-node-desc { font-size: 0.675rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .canvas-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            background: var(--bg-canvas);
+        }
+        .canvas-grid {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle, var(--border) 1px, transparent 1px);
+            background-size: 20px 20px;
+            pointer-events: none;
+        }
+        .canvas {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            transform-origin: 0 0;
+        }
+        .connections-svg {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: visible;
+        }
+        .connection {
+            fill: none;
+            stroke: var(--text-muted);
+            stroke-width: 2;
+            pointer-events: stroke;
+            cursor: pointer;
+        }
+        .connection:hover { stroke: var(--error); stroke-width: 3; }
+        .connection-temp {
+            fill: none;
+            stroke: var(--primary);
+            stroke-width: 2;
+            stroke-dasharray: 5, 5;
+        }
+        .nodes-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+        .workflow-node {
+            position: absolute;
+            min-width: 180px;
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            cursor: move;
+            user-select: none;
+            transition: box-shadow 0.2s;
+        }
+        .workflow-node:hover { box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); }
+        .workflow-node.selected { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(0, 120, 212, 0.3); }
+        .workflow-node[data-category="trigger"] { border-color: var(--node-trigger); }
+        .workflow-node[data-category="action"] { border-color: var(--node-action); }
+        .workflow-node[data-category="data"] { border-color: var(--node-data); }
+        .workflow-node[data-category="flow"] { border-color: var(--node-flow); }
+        .workflow-node[data-category="output"] { border-color: var(--node-output); }
+        .workflow-node[data-category="ai"] { border-color: var(--node-ai); }
+        .node-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border);
+        }
+        .node-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+        }
+        .workflow-node[data-category="trigger"] .node-icon { background: rgba(16, 124, 16, 0.2); color: var(--node-trigger); }
+        .workflow-node[data-category="action"] .node-icon { background: rgba(0, 120, 212, 0.2); color: var(--node-action); }
+        .workflow-node[data-category="data"] .node-icon { background: rgba(155, 89, 182, 0.2); color: var(--node-data); }
+        .workflow-node[data-category="flow"] .node-icon { background: rgba(230, 126, 34, 0.2); color: var(--node-flow); }
+        .workflow-node[data-category="output"] .node-icon { background: rgba(255, 185, 0, 0.2); color: var(--node-output); }
+        .workflow-node[data-category="ai"] .node-icon { background: rgba(0, 206, 209, 0.2); color: var(--node-ai); }
+        .node-title { flex: 1; font-size: 0.8rem; font-weight: 600; }
+        .node-menu-btn {
+            width: 24px;
+            height: 24px;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .node-menu-btn:hover { background: var(--bg-input); color: var(--text-primary); }
+        .node-body { padding: 0.75rem; font-size: 0.75rem; color: var(--text-secondary); }
+        .node-port {
+            position: absolute;
+            width: 14px;
+            height: 14px;
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: 50%;
+            cursor: crosshair;
+            z-index: 10;
+        }
+        .node-port:hover { background: var(--primary); border-color: var(--primary); }
+        .node-port.input { left: -7px; top: 50%; transform: translateY(-50%); }
+        .node-port.output { right: -7px; top: 50%; transform: translateY(-50%); }
+        .node-port.output-true { right: -7px; top: 30%; transform: translateY(-50%); }
+        .node-port.output-false { right: -7px; top: 70%; transform: translateY(-50%); }
+        .node-port-label {
+            position: absolute;
+            font-size: 0.625rem;
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
+        .node-port.output-true + .node-port-label { right: 20px; top: 30%; transform: translateY(-50%); }
+        .node-port.output-false + .node-port-label { right: 20px; top: 70%; transform: translateY(-50%); }
+        .inspector {
+            width: 300px;
+            background: var(--bg-sidebar);
+            border-left: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+        .inspector.hidden { display: none; }
+        .inspector-header {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .inspector-header h3 { font-size: 0.875rem; font-weight: 600; }
+        .inspector-close {
+            width: 28px;
+            height: 28px;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .inspector-close:hover { background: var(--bg-input); color: var(--text-primary); }
+        .inspector-content { flex: 1; overflow-y: auto; padding: 1rem; }
+        .inspector-section { margin-bottom: 1.5rem; }
+        .inspector-section-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-bottom: 0.75rem;
+        }
+        .inspector-field { margin-bottom: 1rem; }
+        .inspector-field label {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+        .inspector-field input, .inspector-field textarea, .inspector-field select {
+            width: 100%;
+            padding: 0.625rem;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 0.8rem;
+        }
+        .inspector-field input:focus, .inspector-field textarea:focus, .inspector-field select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        .inspector-empty {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+        }
+        .inspector-empty i { font-size: 2rem; margin-bottom: 1rem; opacity: 0.5; }
+        .console {
+            height: 150px;
+            background: var(--bg-sidebar);
+            border-top: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+        .console.hidden { display: none; }
+        .console-header {
+            padding: 0.5rem 1rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .console-header h4 { font-size: 0.8rem; font-weight: 600; }
+        .console-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0.5rem 1rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+        }
+        .console-line { padding: 0.25rem 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .console-line.success { color: var(--success); }
+        .console-line.error { color: var(--error); }
+        .console-line.info { color: var(--primary); }
+        .add-node-btn {
+            position: fixed;
+            bottom: 180px;
+            right: 320px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(0, 120, 212, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+        .add-node-btn:hover { transform: scale(1.1); }
+        .context-menu {
+            position: fixed;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.5rem 0;
+            min-width: 180px;
+            z-index: 1000;
+            display: none;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+        }
+        .context-menu.active { display: block; }
+        .context-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.625rem 1rem;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+        .context-menu-item:hover { background: var(--bg-input); color: var(--text-primary); }
+        .context-menu-item.danger { color: var(--error); }
+        .context-menu-item.danger:hover { background: rgba(209, 52, 56, 0.1); }
+        .context-menu-divider { height: 1px; background: var(--border); margin: 0.5rem 0; }
+        .save-indicator {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .save-indicator.saving { color: var(--warning); }
+        .save-indicator.saved { color: var(--success); }
+    </style>
+</head>
+<body>
+    <div class="toolbar">
+        <div class="toolbar-left">
+            <a href="/editor" class="back-btn">
+                <i class="fas fa-arrow-left"></i>
+                <span>Voltar</span>
+            </a>
+            <span class="project-title">{{ project.name }}</span>
+            <div class="save-indicator saved" id="saveIndicator">
+                <i class="fas fa-check-circle"></i>
+                <span>Salvo</span>
+            </div>
+        </div>
+        <div class="toolbar-center">
+            <div class="zoom-controls">
+                <button class="zoom-btn" onclick="zoomOut()" title="Diminuir Zoom">
+                    <i class="fas fa-minus"></i>
+                </button>
+                <span class="zoom-level" id="zoomLevel">100%</span>
+                <button class="zoom-btn" onclick="zoomIn()" title="Aumentar Zoom">
+                    <i class="fas fa-plus"></i>
+                </button>
+                <button class="zoom-btn" onclick="resetZoom()" title="Resetar Zoom">
+                    <i class="fas fa-expand"></i>
+                </button>
+            </div>
+        </div>
+        <div class="toolbar-right">
+            <button class="btn btn-secondary" onclick="toggleConsole()">
+                <i class="fas fa-terminal"></i> Console
+            </button>
+            <button class="btn btn-success" onclick="executeWorkflow()">
+                <i class="fas fa-play"></i> Executar
+            </button>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="palette">
+            <div class="palette-header">
+                <h3><i class="fas fa-shapes"></i> Nodes</h3>
+                <div class="palette-search">
+                    <input type="text" id="nodeSearch" placeholder="Buscar nodes..." oninput="filterNodes()">
+                </div>
+            </div>
+            <div class="palette-content" id="paletteContent">
+                {% for category, nodes in node_types.items() %}
+                <div class="palette-category" data-category="{{ category }}">
+                    <div class="category-header">
+                        <i class="fas fa-chevron-down"></i>
+                        <span>{{ category|title }}</span>
+                    </div>
+                    <div class="category-items">
+                        {% for node_type, node_info in nodes.items() %}
+                        <div class="palette-node" 
+                             draggable="true" 
+                             data-type="{{ node_type }}" 
+                             data-category="{{ category }}"
+                             data-name="{{ node_info.name }}"
+                             data-icon="{{ node_info.icon }}"
+                             ondragstart="onDragStart(event)">
+                            <div class="palette-node-icon">
+                                <i class="fas {{ node_info.icon }}"></i>
+                            </div>
+                            <div class="palette-node-info">
+                                <div class="palette-node-name">{{ node_info.name }}</div>
+                                <div class="palette-node-desc">{{ node_info.description }}</div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="canvas-container" 
+             id="canvasContainer"
+             ondrop="onDrop(event)" 
+             ondragover="onDragOver(event)"
+             onmousedown="onCanvasMouseDown(event)"
+             onmousemove="onCanvasMouseMove(event)"
+             onmouseup="onCanvasMouseUp(event)"
+             onwheel="onCanvasWheel(event)">
+            <div class="canvas-grid"></div>
+            <div class="canvas" id="canvas">
+                <svg class="connections-svg" id="connectionsSvg"></svg>
+                <div class="nodes-container" id="nodesContainer"></div>
+            </div>
+        </div>
+
+        <div class="inspector" id="inspector">
+            <div class="inspector-header">
+                <h3 id="inspectorTitle">Propriedades</h3>
+                <button class="inspector-close" onclick="closeInspector()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="inspector-content" id="inspectorContent">
+                <div class="inspector-empty">
+                    <i class="fas fa-mouse-pointer"></i>
+                    <p>Selecione um node para editar suas propriedades</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="console hidden" id="console">
+        <div class="console-header">
+            <h4><i class="fas fa-terminal"></i> Console de Execução</h4>
+            <button class="btn btn-secondary" onclick="clearConsole()" style="padding: 0.25rem 0.5rem; font-size: 0.7rem;">
+                <i class="fas fa-trash"></i> Limpar
+            </button>
+        </div>
+        <div class="console-content" id="consoleContent"></div>
+    </div>
+
+    <button class="add-node-btn" onclick="openAddNodeMenu()" title="Adicionar Node">
+        <i class="fas fa-plus"></i>
+    </button>
+
+    <div class="context-menu" id="contextMenu">
+        <div class="context-menu-item" onclick="duplicateSelectedNode()">
+            <i class="fas fa-copy"></i> Duplicar
+        </div>
+        <div class="context-menu-item" onclick="toggleSelectedNode()">
+            <i class="fas fa-toggle-on"></i> Ativar/Desativar
+        </div>
+        <div class="context-menu-divider"></div>
+        <div class="context-menu-item danger" onclick="deleteSelectedNode()">
+            <i class="fas fa-trash"></i> Excluir
+        </div>
+    </div>
+
+    <script>
+        const projectId = {{ project.id }};
+        let nodes = {};
+        let edges = {};
+        let selectedNodeId = null;
+        let zoom = {{ project.canvas_zoom or 1.0 }};
+        let panX = {{ project.canvas_offset_x or 0 }};
+        let panY = {{ project.canvas_offset_y or 0 }};
+        let isPanning = false;
+        let panStartX = 0, panStartY = 0;
+        let isDraggingNode = false;
+        let draggedNodeId = null;
+        let dragOffsetX = 0, dragOffsetY = 0;
+        let isConnecting = false;
+        let connectionStartNodeId = null;
+        let connectionStartPort = null;
+        let saveTimeout = null;
+
+        const nodeTypes = {{ node_types|tojson|safe }};
+
+        function init() {
+            loadProject();
+            updateCanvasTransform();
+        }
+
+        async function loadProject() {
+            try {
+                const response = await fetch(`/api/projects/${projectId}`);
+                const data = await response.json();
+                if (data.success) {
+                    data.project.nodes.forEach(node => {
+                        nodes[node.node_id] = node;
+                        renderNode(node);
+                    });
+                    data.project.edges.forEach(edge => {
+                        edges[edge.edge_id] = edge;
+                    });
+                    renderConnections();
+                }
+            } catch (error) {
+                console.error('Erro ao carregar projeto:', error);
+            }
+        }
+
+        function renderNode(node) {
+            const container = document.getElementById('nodesContainer');
+            const nodeEl = document.createElement('div');
+            nodeEl.className = 'workflow-node';
+            nodeEl.id = `node-${node.node_id}`;
+            nodeEl.dataset.nodeId = node.node_id;
+            nodeEl.dataset.category = node.node_category;
+            nodeEl.style.left = `${node.position_x}px`;
+            nodeEl.style.top = `${node.position_y}px`;
+
+            const nodeInfo = nodeTypes[node.node_category]?.[node.node_type] || {};
+            const icon = nodeInfo.icon || 'fa-cube';
+
+            let portsHtml = '';
+            if (node.node_category !== 'trigger') {
+                portsHtml += '<div class="node-port input" data-port="input" onmousedown="startConnection(event)" onmouseup="endConnection(event)"></div>';
+            }
+
+            if (node.node_type === 'condition' || node.node_type === 'switch') {
+                portsHtml += `
+                    <div class="node-port output-true" data-port="true" onmousedown="startConnection(event)" onmouseup="endConnection(event)"></div>
+                    <span class="node-port-label" style="right: 20px; top: 30%; transform: translateY(-50%);">Sim</span>
+                    <div class="node-port output-false" data-port="false" onmousedown="startConnection(event)" onmouseup="endConnection(event)"></div>
+                    <span class="node-port-label" style="right: 20px; top: 70%; transform: translateY(-50%);">Não</span>
+                `;
+            } else if (node.node_type === 'loop' || node.node_type === 'foreach') {
+                portsHtml += `
+                    <div class="node-port output-true" data-port="loop" onmousedown="startConnection(event)" onmouseup="endConnection(event)"></div>
+                    <span class="node-port-label" style="right: 20px; top: 30%; transform: translateY(-50%);">Loop</span>
+                    <div class="node-port output-false" data-port="done" onmousedown="startConnection(event)" onmouseup="endConnection(event)"></div>
+                    <span class="node-port-label" style="right: 20px; top: 70%; transform: translateY(-50%);">Fim</span>
+                `;
+            } else {
+                portsHtml += '<div class="node-port output" data-port="output" onmousedown="startConnection(event)" onmouseup="endConnection(event)"></div>';
+            }
+
+            nodeEl.innerHTML = `
+                ${portsHtml}
+                <div class="node-header">
+                    <div class="node-icon">
+                        <i class="fas ${icon}"></i>
+                    </div>
+                    <span class="node-title">${node.name}</span>
+                    <button class="node-menu-btn" onclick="event.stopPropagation(); showNodeMenu(event, '${node.node_id}')">
+                        <i class="fas fa-ellipsis-v"></i>
+                    </button>
+                </div>
+                <div class="node-body">
+                    ${getNodeDescription(node)}
+                </div>
+            `;
+
+            nodeEl.addEventListener('mousedown', (e) => onNodeMouseDown(e, node.node_id));
+            nodeEl.addEventListener('click', (e) => { e.stopPropagation(); selectNode(node.node_id); });
+            nodeEl.addEventListener('contextmenu', (e) => { e.preventDefault(); showNodeMenu(e, node.node_id); });
+
+            container.appendChild(nodeEl);
+        }
+
+        function getNodeDescription(node) {
+            const config = node.config || {};
+            switch (node.node_type) {
+                case 'loop': return `Repetir ${config.count || 3} vezes`;
+                case 'foreach': return `Iterar sobre lista`;
+                case 'condition': return config.condition || 'Condição não definida';
+                case 'wait': return `Aguardar ${config.seconds || 1}s`;
+                case 'telegram': return config.message ? config.message.substring(0, 30) + '...' : 'Enviar mensagem';
+                case 'currency': return 'Buscar cotações';
+                default: return nodeTypes[node.node_category]?.[node.node_type]?.description || '';
+            }
+        }
+
+        function renderConnections() {
+            const svg = document.getElementById('connectionsSvg');
+            svg.innerHTML = '';
+            
+            Object.values(edges).forEach(edge => {
+                const path = createConnectionPath(edge);
+                if (path) {
+                    svg.appendChild(path);
+                }
+            });
+        }
+
+        function createConnectionPath(edge) {
+            const sourceNode = document.getElementById(`node-${edge.source_node_id}`);
+            const targetNode = document.getElementById(`node-${edge.target_node_id}`);
+            
+            if (!sourceNode || !targetNode) return null;
+
+            const sourcePort = sourceNode.querySelector(`.node-port[data-port="${edge.source_port}"]`) ||
+                              sourceNode.querySelector('.node-port.output') ||
+                              sourceNode.querySelector('.node-port.output-true');
+            const targetPort = targetNode.querySelector('.node-port.input');
+
+            if (!sourcePort || !targetPort) return null;
+
+            const sourceRect = sourcePort.getBoundingClientRect();
+            const targetRect = targetPort.getBoundingClientRect();
+            const canvasRect = document.getElementById('canvas').getBoundingClientRect();
+
+            const x1 = (sourceRect.left + sourceRect.width / 2 - canvasRect.left) / zoom;
+            const y1 = (sourceRect.top + sourceRect.height / 2 - canvasRect.top) / zoom;
+            const x2 = (targetRect.left + targetRect.width / 2 - canvasRect.left) / zoom;
+            const y2 = (targetRect.top + targetRect.height / 2 - canvasRect.top) / zoom;
+
+            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            const dx = Math.abs(x2 - x1) * 0.5;
+            path.setAttribute('d', `M${x1},${y1} C${x1 + dx},${y1} ${x2 - dx},${y2} ${x2},${y2}`);
+            path.setAttribute('class', 'connection');
+            path.dataset.edgeId = edge.edge_id;
+            path.addEventListener('click', () => deleteEdge(edge.edge_id));
+
+            return path;
+        }
+
+        function onDragStart(e) {
+            e.dataTransfer.setData('nodeType', e.target.dataset.type);
+            e.dataTransfer.setData('nodeCategory', e.target.dataset.category);
+            e.dataTransfer.setData('nodeName', e.target.dataset.name);
+            e.dataTransfer.setData('nodeIcon', e.target.dataset.icon);
+        }
+
+        function onDragOver(e) {
+            e.preventDefault();
+        }
+
+        async function onDrop(e) {
+            e.preventDefault();
+            const nodeType = e.dataTransfer.getData('nodeType');
+            const nodeCategory = e.dataTransfer.getData('nodeCategory');
+            const nodeName = e.dataTransfer.getData('nodeName');
+            
+            if (!nodeType) return;
+
+            const canvasRect = document.getElementById('canvas').getBoundingClientRect();
+            const x = (e.clientX - canvasRect.left) / zoom;
+            const y = (e.clientY - canvasRect.top) / zoom;
+
+            const nodeId = `node_${Date.now()}`;
+            const nodeData = {
+                node_id: nodeId,
+                name: nodeName,
+                node_type: nodeType,
+                node_category: nodeCategory,
+                position_x: x,
+                position_y: y,
+                config: getDefaultConfig(nodeType)
+            };
+
+            try {
+                const response = await fetch(`/api/projects/${projectId}/nodes`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(nodeData)
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    nodes[nodeId] = data.node;
+                    renderNode(data.node);
+                    selectNode(nodeId);
+                    showSaveIndicator('saved');
+                }
+            } catch (error) {
+                console.error('Erro ao criar node:', error);
+            }
+        }
+
+        function getDefaultConfig(nodeType) {
+            switch (nodeType) {
+                case 'loop': return { count: 3 };
+                case 'wait': return { seconds: 1 };
+                case 'condition': return { condition: 'true' };
+                case 'telegram': return { message: '' };
+                default: return {};
+            }
+        }
+
+        function onNodeMouseDown(e, nodeId) {
+            if (e.target.classList.contains('node-port') || e.target.classList.contains('node-menu-btn')) return;
+            
+            isDraggingNode = true;
+            draggedNodeId = nodeId;
+            
+            const nodeEl = document.getElementById(`node-${nodeId}`);
+            const rect = nodeEl.getBoundingClientRect();
+            dragOffsetX = e.clientX - rect.left;
+            dragOffsetY = e.clientY - rect.top;
+            
+            e.stopPropagation();
+        }
+
+        function onCanvasMouseDown(e) {
+            if (e.target.id === 'canvasContainer' || e.target.classList.contains('canvas-grid')) {
+                isPanning = true;
+                panStartX = e.clientX - panX;
+                panStartY = e.clientY - panY;
+                deselectNode();
+            }
+        }
+
+        function onCanvasMouseMove(e) {
+            if (isPanning) {
+                panX = e.clientX - panStartX;
+                panY = e.clientY - panStartY;
+                updateCanvasTransform();
+            }
+            
+            if (isDraggingNode && draggedNodeId) {
+                const canvasRect = document.getElementById('canvas').getBoundingClientRect();
+                const x = (e.clientX - canvasRect.left - dragOffsetX * zoom) / zoom;
+                const y = (e.clientY - canvasRect.top - dragOffsetY * zoom) / zoom;
+                
+                const nodeEl = document.getElementById(`node-${draggedNodeId}`);
+                nodeEl.style.left = `${Math.max(0, x)}px`;
+                nodeEl.style.top = `${Math.max(0, y)}px`;
+                
+                nodes[draggedNodeId].position_x = Math.max(0, x);
+                nodes[draggedNodeId].position_y = Math.max(0, y);
+                
+                renderConnections();
+            }
+
+            if (isConnecting) {
+                updateTempConnection(e);
+            }
+        }
+
+        function onCanvasMouseUp(e) {
+            if (isDraggingNode && draggedNodeId) {
+                saveNodePosition(draggedNodeId);
+            }
+            
+            isPanning = false;
+            isDraggingNode = false;
+            draggedNodeId = null;
+            
+            if (isConnecting) {
+                cancelConnection();
+            }
+        }
+
+        async function saveNodePosition(nodeId) {
+            const node = nodes[nodeId];
+            showSaveIndicator('saving');
+            
+            try {
+                await fetch(`/api/projects/${projectId}/nodes/${nodeId}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        position_x: node.position_x,
+                        position_y: node.position_y
+                    })
+                });
+                showSaveIndicator('saved');
+            } catch (error) {
+                console.error('Erro ao salvar posição:', error);
+            }
+        }
+
+        function startConnection(e) {
+            e.stopPropagation();
+            isConnecting = true;
+            
+            const port = e.target;
+            const nodeEl = port.closest('.workflow-node');
+            connectionStartNodeId = nodeEl.dataset.nodeId;
+            connectionStartPort = port.dataset.port;
+        }
+
+        async function endConnection(e) {
+            e.stopPropagation();
+            
+            if (!isConnecting || !connectionStartNodeId) return;
+            
+            const port = e.target;
+            const nodeEl = port.closest('.workflow-node');
+            const targetNodeId = nodeEl.dataset.nodeId;
+            
+            if (targetNodeId !== connectionStartNodeId && port.dataset.port === 'input') {
+                const edgeId = `edge_${Date.now()}`;
+                const edgeData = {
+                    edge_id: edgeId,
+                    source_node_id: connectionStartNodeId,
+                    target_node_id: targetNodeId,
+                    source_port: connectionStartPort,
+                    target_port: 'input'
+                };
+                
+                try {
+                    const response = await fetch(`/api/projects/${projectId}/edges`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(edgeData)
+                    });
+                    
+                    const data = await response.json();
+                    if (data.success) {
+                        edges[edgeId] = data.edge;
+                        renderConnections();
+                        showSaveIndicator('saved');
+                    }
+                } catch (error) {
+                    console.error('Erro ao criar conexão:', error);
+                }
+            }
+            
+            cancelConnection();
+        }
+
+        function cancelConnection() {
+            isConnecting = false;
+            connectionStartNodeId = null;
+            connectionStartPort = null;
+            const tempPath = document.getElementById('tempConnection');
+            if (tempPath) tempPath.remove();
+        }
+
+        function updateTempConnection(e) {
+            const svg = document.getElementById('connectionsSvg');
+            let tempPath = document.getElementById('tempConnection');
+            
+            if (!tempPath) {
+                tempPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                tempPath.id = 'tempConnection';
+                tempPath.setAttribute('class', 'connection-temp');
+                svg.appendChild(tempPath);
+            }
+            
+            const sourceNode = document.getElementById(`node-${connectionStartNodeId}`);
+            const sourcePort = sourceNode.querySelector(`.node-port[data-port="${connectionStartPort}"]`);
+            
+            const sourceRect = sourcePort.getBoundingClientRect();
+            const canvasRect = document.getElementById('canvas').getBoundingClientRect();
+            
+            const x1 = (sourceRect.left + sourceRect.width / 2 - canvasRect.left) / zoom;
+            const y1 = (sourceRect.top + sourceRect.height / 2 - canvasRect.top) / zoom;
+            const x2 = (e.clientX - canvasRect.left) / zoom;
+            const y2 = (e.clientY - canvasRect.top) / zoom;
+            
+            const dx = Math.abs(x2 - x1) * 0.5;
+            tempPath.setAttribute('d', `M${x1},${y1} C${x1 + dx},${y1} ${x2 - dx},${y2} ${x2},${y2}`);
+        }
+
+        async function deleteEdge(edgeId) {
+            if (!confirm('Remover esta conexão?')) return;
+            
+            try {
+                await fetch(`/api/projects/${projectId}/edges/${edgeId}`, { method: 'DELETE' });
+                delete edges[edgeId];
+                renderConnections();
+                showSaveIndicator('saved');
+            } catch (error) {
+                console.error('Erro ao deletar conexão:', error);
+            }
+        }
+
+        function selectNode(nodeId) {
+            deselectNode();
+            selectedNodeId = nodeId;
+            
+            const nodeEl = document.getElementById(`node-${nodeId}`);
+            nodeEl.classList.add('selected');
+            
+            showInspector(nodeId);
+        }
+
+        function deselectNode() {
+            if (selectedNodeId) {
+                const nodeEl = document.getElementById(`node-${selectedNodeId}`);
+                if (nodeEl) nodeEl.classList.remove('selected');
+            }
+            selectedNodeId = null;
+        }
+
+        function showInspector(nodeId) {
+            const node = nodes[nodeId];
+            const inspector = document.getElementById('inspector');
+            const title = document.getElementById('inspectorTitle');
+            const content = document.getElementById('inspectorContent');
+            
+            inspector.classList.remove('hidden');
+            title.textContent = node.name;
+            
+            content.innerHTML = `
+                <div class="inspector-section">
+                    <div class="inspector-section-title">Geral</div>
+                    <div class="inspector-field">
+                        <label>Nome</label>
+                        <input type="text" value="${node.name}" onchange="updateNodeName('${nodeId}', this.value)">
+                    </div>
+                    <div class="inspector-field">
+                        <label>Tipo</label>
+                        <input type="text" value="${nodeTypes[node.node_category]?.[node.node_type]?.name || node.node_type}" disabled>
+                    </div>
+                </div>
+                ${getConfigFields(node)}
+            `;
+        }
+
+        function getConfigFields(node) {
+            const config = node.config || {};
+            const nodeId = node.node_id;
+            let html = '<div class="inspector-section"><div class="inspector-section-title">Configuração</div>';
+            
+            switch (node.node_type) {
+                case 'manual':
+                    html += `
+                        <div class="inspector-field">
+                            <label>Descrição do Trigger</label>
+                            <input type="text" value="${config.description || ''}" placeholder="Ex: Início do fluxo" onchange="updateNodeConfig('${nodeId}', 'description', this.value)">
+                        </div>
+                    `;
+                    break;
+                case 'schedule':
+                    html += `
+                        <div class="inspector-field">
+                            <label>Tipo de Agendamento</label>
+                            <select onchange="updateNodeConfig('${nodeId}', 'scheduleType', this.value)">
+                                <option value="interval" ${config.scheduleType === 'interval' ? 'selected' : ''}>Intervalo</option>
+                                <option value="cron" ${config.scheduleType === 'cron' ? 'selected' : ''}>Cron Expression</option>
+                            </select>
+                        </div>
+                        <div class="inspector-field">
+                            <label>Intervalo (minutos)</label>
+                            <input type="number" value="${config.interval || 60}" min="1" onchange="updateNodeConfig('${nodeId}', 'interval', parseInt(this.value))">
+                        </div>
+                        <div class="inspector-field">
+                            <label>Cron (se aplicável)</label>
+                            <input type="text" value="${config.cron || ''}" placeholder="0 * * * *" onchange="updateNodeConfig('${nodeId}', 'cron', this.value)">
+                        </div>
+                    `;
+                    break;
+                case 'webhook':
+                    html += `
+                        <div class="inspector-field">
+                            <label>Método HTTP</label>
+                            <select onchange="updateNodeConfig('${nodeId}', 'method', this.value)">
+                                <option value="GET" ${config.method === 'GET' ? 'selected' : ''}>GET</option>
+                                <option value="POST" ${config.method === 'POST' ? 'selected' : ''}>POST</option>
+                                <option value="PUT" ${config.method === 'PUT' ? 'selected' : ''}>PUT</option>
+                            </select>
+                        </div>
+                        <div class="inspector-field">
+                            <label>Path</label>
+                            <input type="text" value="${config.path || '/webhook'}" onchange="updateNodeConfig('${nodeId}', 'path', this.value)">
+                        </div>
+                        <div class="inspector-field">
+                            <label>Autenticação</label>
+                            <select onchange="updateNodeConfig('${nodeId}', 'auth', this.value)">
+                                <option value="none" ${config.auth === 'none' ? 'selected' : ''}>Nenhuma</option>
+                                <option value="header" ${config.auth === 'header' ? 'selected' : ''}>Header Token</option>
+                                <option value="basic" ${config.auth === 'basic' ? 'selected' : ''}>Basic Auth</option>
+                            </select>
+                        </div>
+                    `;
+                    break;
+                case 'http':
+                    html += `
+                        <div class="inspector-field">
+                            <label>URL</label>
+                            <input type="text" value="${config.url || ''}" placeholder="https://api.example.com/endpoint" onchange="updateNodeConfig('${nodeId}', 'url', this.value)">
+                        </div>
+                        <div class="inspector-field">
+                            <label>Método</label>
+                            <select onchange="updateNodeConfig('${nodeId}', 'method', this.value)">
+                                <option value="GET" ${config.method === 'GET' ? 'selected' : ''}>GET</option>
+                                <option value="POST" ${config.method === 'POST' ? 'selected' : ''}>POST</option>
+                                <option value="PUT" ${config.method === 'PUT' ? 'selected' : ''}>PUT</option>
+                                <option value="DELETE" ${config.method === 'DELETE' ? 'selected' : ''}>DELETE</option>
+                                <option value="PATCH" ${config.method === 'PATCH' ? 'selected' : ''}>PATCH</option>
+                            </select>
+                        </div>
+                        <div class="inspector-field">
+                            <label>Headers (JSON)</label>
+                            <textarea rows="3" placeholder='{"Content-Type": "application/json"}' onchange="updateNodeConfig('${nodeId}', 'headers', this.value)">${config.headers || ''}</textarea>
+                        </div>
+                        <div class="inspector-field">
+                            <label>Body (JSON)</label>
+                            <textarea rows="4" placeholder='{"key": "value"}' onchange="updateNodeConfig('${nodeId}', 'body', this.value)">${config.body || ''}</textarea>
+                        </div>
+                        <div class="inspector-field">
+                            <label>Timeout (ms)</label>
+                            <input type="number" value="${config.timeout || 30000}" min="1000" onchange="updateNodeConfig('${nodeId}', 'timeout', parseInt(this.value))">
+                        </div>
+                        <div class="inspector-field">
+                            <label>Autenticação</label>
+                            <select onchange="updateNodeConfig('${nodeId}', 'authType', this.value)">
+                                <option value="none" ${config.authType === 'none' ? 'selected' : ''}>Nenhuma</option>
+                                <option value="bearer" ${config.authType === 'bearer' ? 'selected' : ''}>Bearer Token</option>
+                                <option value="basic" ${config.authType === 'basic' ? 'selected' : ''}>Basic Auth</option>
+                                <option value="apikey" ${config.authType === 'apikey' ? 'selected' : ''}>API Key</option>
+                            </select>
+                        </div>
+                        <div class="inspector-field">
+                            <label>Token/Credencial</label>
+                            <input type="password" value="${config.authToken || ''}" placeholder="Seu token aqui" onchange="updateNodeConfig('${nodeId}', 'authToken', this.value)">
+                        </div>
+                    `;
+                    break;
+                case 'telegram':
+                    html += `
+                        <div class="inspector-field">
+                            <label>Tipo de Ação</label>
+                            <select onchange="updateNodeConfig('${nodeId}', 'action', this.value)">
+                                <option value="sendMessage" ${config.action === 'sendMessage' ? 'selected' : ''}>Enviar Mensagem</option>
+                                <option value="sendPhoto" ${config.action === 'sendPhoto' ? 'selected' : ''}>Enviar Foto</option>
+                                <option value="sendDocument" ${config.action === 'sendDocument' ? 'selected' : ''}>Enviar Documento</option>
+                            </select>
+                        </div>
+                        <div class="inspector-field">
+                            <label>Mensagem</label>
+                            <textarea rows="4" placeholder="Use {{variavel}} para dados dinâmicos" onchange="updateNodeConfig('${nodeId}', 'message', this.value)">${config.message || ''}</textarea>
+                        </div>
+                        <div class="inspector-field">
+                            <label>Parse Mode</label>
+                            <select onchange="updateNodeConfig('${nodeId}', 'parseMode', this.value)">
+                                <option value="HTML" ${config.parseMode === 'HTML' ? 'selected' : ''}>HTML</option>
+                                <option value="Markdown" ${config.parseMode === 'Markdown' ? 'selected' : ''}>Markdown</option>
+                                <option value="MarkdownV2" ${config.parseMode === 'MarkdownV2' ? 'selected' : ''}>MarkdownV2</option>
+                            </select>
+                        </div>
+                        <div class="inspector-field">
+                            <label>Chat ID (opcional - usa padrão)</label>
+                            <input type="text" value="${config.chatId || ''}" placeholder="Deixe vazio para usar configuração" onchange="updateNodeConfig('${nodeId}', 'chatId', this.value)">
+                        </div>
+                    `;
+                    break;
+                case 'email':
+                    html += `
+                        <div class="inspector-field">
+                            <label>Para (To)</label>
+                            <input type="email" value="${config.to || ''}" placeholder="destinatario@email.com" onchange="updateNodeConfig('${nodeId}', 'to', this.value)">
+                        </div>
+                        <div class="inspector-field">
+                            <label>CC (opcional)</label>
+                            <input type="text" value="${config.cc || ''}" placeholder="copia@email.com" onchange="updateNodeConfig('${nodeId}', 'cc', this.value)">
+                        </div>
+                        <div class="inspector-field">
+                            <label>Assunto</label>
+                            <input type="text" value="${config.subject || ''}" placeholder="Assunto do email" onchange="updateNodeConfig('${nodeId}', 'subject', this.value)">
+                        </div>
+                        <div class="inspector-field">
+                            <label>Corpo do Email</label>
+                            <textarea rows="6" placeholder="Conteúdo do email..." onchange="updateNodeConfig('${nodeId}', 'body', this.value)">${config.body || ''}</textarea>
+                        </div>
+                        <div class="inspector-field">
+                            <label>Formato</label>
+                            <select onchange="updateNodeConfig('${nodeId}', 'format', this.value)">
+                                <option value="html" ${config.format === 'html' ? 'selected' : ''}>HTML</option>
+                                <option value="text" ${config.format === 'text' ? 'selected' : ''}>Texto Simples</option>
+                            </select>
+                        </div>
+                    `;
+                    break;
+                case 'slack':
+                    html += `
+                        <div class="inspector-field">
+                            <label>Canal</label>
+                            <input type="text" value="${config.channel || ''}" placeholder="#canal ou @usuario" onchange="updateNodeConfig('${nodeId}', 'channel', this.value)">
+                        </div>
+                        <div class="inspector-field">
+                            <label>Mensagem</label>
+                            <textarea rows="4" placeholder="Mensagem para o Slack" onchange="updateNodeConfig('${nodeId}', 'message', this.value)">${config.message || ''}</textarea>
+                        </div>
+                        <div class="inspector-field">
+                            <label>Username (opcional)</label>
+                            <input type="text" value="${config.username || ''}" placeholder="Bot Name" onchange="updateNodeConfig('${nodeId}', 'username', this.value)">
+                        </div>
+                        <div class="inspector-field">
+                            <label>Emoji Ícone</label>
+                            <input type="text" value="${config.iconEmoji || ':robot_face:'}" placeholder=":robot_face:" onchange="updateNodeConfig('${nodeId}', 'iconEmoji', this.value)">
+                        </div>
+                    `;
+                    break;
+                case 'whatsapp':
+                    html += `
+                        <div class="inspector-field">
+                            <label>Número do Destinatário</label>
+                            <input type="text" value="${config.phone || ''}" placeholder="5511999999999" onchange="updateNodeConfig('${nodeId}', 'phone', this.value)">
+                        </div>
+                        <div class="inspector-field">
+                            <label>Tipo de Mensagem</label>
+                            <select onchange="updateNodeConfig('${nodeId}', 'messageType', this.value)">
+                                <option value="text" ${config.messageType === 'text' ? 'selected' : ''}>Texto</option>
+                                <option value="template" ${config.messageType === 'template' ? 'selected' : ''}>Template</option>
+                            </select>
+                        </div>
+                        <div class="inspector-field">
+                            <label>Mensagem</label>
+                            <textarea rows="4" onchange="updateNodeConfig('${nodeId}', 'message', this.value)">${config.message || ''}</textarea>
+                        </div>
+                    `;
+                    break;
+                case 'database':
+                    html += `
+                        <div class="inspector-field">
+                            <label>Operação</label>
+                            <select onchange="updateNodeConfig('${nodeId}', 'operation', this.value)">
+                                <option value="select" ${config.operation === 'select' ? 'selected' : ''}>SELECT</option>
+                                <option value="insert" ${config.operation === 'insert' ? 'selected' : ''}>INSERT</option>
+                                <option value="update" ${config.operation === 'update' ? 'selected' : ''}>UPDATE</option>
+                                <option value="delete" ${config.operation === 'delete' ? 'selected' : ''}>DELETE</option>
+                                <option value="raw" ${config.operation === 'raw' ? 'selected' : ''}>Query Customizada</option>
+                            </select>
+                        </div>
+                        <div class="inspector-field">
+                            <label>Tabela</label>
+                            <input type="text" value="${config.table || ''}" placeholder="nome_tabela" onchange="updateNodeConfig('${nodeId}', 'table', this.value)">
+                        </div>
+                        <div class="inspector-field">
+                            <label>Query SQL (para raw)</label>
+                            <textarea rows="4" placeholder="SELECT * FROM users WHERE id = {{id}}" onchange="updateNodeConfig('${nodeId}', 'query', this.value)">${config.query || ''}</textarea>
+                        </div>
+                    `;
+                    break;
+                case 'currency':
+                    html += `
+                        <div class="inspector-field">
+                            <label>Moedas</label>
+                            <select multiple onchange="updateNodeConfig('${nodeId}', 'currencies', Array.from(this.selectedOptions).map(o => o.value))">
+                                <option value="USD-BRL" ${(config.currencies || []).includes('USD-BRL') ? 'selected' : ''}>USD (Dólar)</option>
+                                <option value="EUR-BRL" ${(config.currencies || []).includes('EUR-BRL') ? 'selected' : ''}>EUR (Euro)</option>
+                                <option value="BTC-BRL" ${(config.currencies || []).includes('BTC-BRL') ? 'selected' : ''}>BTC (Bitcoin)</option>
+                                <option value="GBP-BRL" ${(config.currencies || []).includes('GBP-BRL') ? 'selected' : ''}>GBP (Libra)</option>
+                            </select>
+                        </div>
+                        <div class="inspector-field">
+                            <label>Formato de Saída</label>
+                            <select onchange="updateNodeConfig('${nodeId}', 'outputFormat', this.value)">
+                                <option value="full" ${config.outputFormat === 'full' ? 'selected' : ''}>Completo</option>
+                                <option value="simple" ${config.outputFormat === 'simple' ? 'selected' : ''}>Apenas Cotação</option>
+                            </select>
+                        </div>
+                    `;
+                    break;
+                case 'transform':
+                    html += `
+                        <div class="inspector-field">
+                            <label>Tipo de Transformação</label>
+                            <select onchange="updateNodeConfig('${nodeId}', 'transformType', this.value)">
+                                <option value="map" ${config.transformType === 'map' ? 'selected' : ''}>Mapear Campos</option>
+                                <option value="filter" ${config.transformType === 'filter' ? 'selected' : ''}>Filtrar</option>
+                                <option value="merge" ${config.transformType === 'merge' ? 'selected' : ''}>Mesclar</option>
+                                <option value="split" ${config.transformType === 'split' ? 'selected' : ''}>Dividir</option>
+                                <option value="code" ${config.transformType === 'code' ? 'selected' : ''}>Código Customizado</option>
+                            </select>
+                        </div>
+                        <div class="inspector-field">
+                            <label>Expressão/Código</label>
+                            <textarea rows="6" placeholder="{{item.field}} ou função personalizada" onchange="updateNodeConfig('${nodeId}', 'expression', this.value)">${config.expression || ''}</textarea>
+                        </div>
+                        <div class="inspector-field">
+                            <label>Campo de Saída</label>
+                            <input type="text" value="${config.outputField || 'data'}" onchange="updateNodeConfig('${nodeId}', 'outputField', this.value)">
+                        </div>
+                    `;
+                    break;
+                case 'filter':
+                    html += `
+                        <div class="inspector-field">
+                            <label>Campo</label>
+                            <input type="text" value="${config.field || ''}" placeholder="item.status" onchange="updateNodeConfig('${nodeId}', 'field', this.value)">
+                        </div>
+                        <div class="inspector-field">
+                            <label>Operador</label>
+                            <select onchange="updateNodeConfig('${nodeId}', 'operator', this.value)">
+                                <option value="equals" ${config.operator === 'equals' ? 'selected' : ''}>Igual a</option>
+                                <option value="notEquals" ${config.operator === 'notEquals' ? 'selected' : ''}>Diferente de</option>
+                                <option value="contains" ${config.operator === 'contains' ? 'selected' : ''}>Contém</option>
+                                <option value="gt" ${config.operator === 'gt' ? 'selected' : ''}>Maior que</option>
+                                <option value="lt" ${config.operator === 'lt' ? 'selected' : ''}>Menor que</option>
+                                <option value="exists" ${config.operator === 'exists' ? 'selected' : ''}>Existe</option>
+                            </select>
+                        </div>
+                        <div class="inspector-field">
+                            <label>Valor</label>
+                            <input type="text" value="${config.value || ''}" onchange="updateNodeConfig('${nodeId}', 'value', this.value)">
+                        </div>
+                    `;
+                    break;
+                case 'condition':
+                    html += `
+                        <div class="inspector-field">
+                            <label>Modo</label>
+                            <select onchange="updateNodeConfig('${nodeId}', 'mode', this.value)">
+                                <option value="simple" ${config.mode === 'simple' ? 'selected' : ''}>Simples</option>
+                                <option value="expression" ${config.mode === 'expression' ? 'selected' : ''}>Expressão</option>
+                            </select>
+                        </div>
+                        <div class="inspector-field">
+                            <label>Campo (modo simples)</label>
+                            <input type="text" value="${config.field || ''}" placeholder="{{data.value}}" onchange="updateNodeConfig('${nodeId}', 'field', this.value)">
+                        </div>
+                        <div class="inspector-field">
+                            <label>Operador</label>
+                            <select onchange="updateNodeConfig('${nodeId}', 'operator', this.value)">
+                                <option value="==" ${config.operator === '==' ? 'selected' : ''}>=</option>
+                                <option value="!=" ${config.operator === '!=' ? 'selected' : ''}>!=</option>
+                                <option value=">" ${config.operator === '>' ? 'selected' : ''}>></option>
+                                <option value="<" ${config.operator === '<' ? 'selected' : ''}><</option>
+                                <option value=">=" ${config.operator === '>=' ? 'selected' : ''}>>=</option>
+                                <option value="<=" ${config.operator === '<=' ? 'selected' : ''}><=</option>
+                                <option value="contains" ${config.operator === 'contains' ? 'selected' : ''}>contém</option>
+                            </select>
+                        </div>
+                        <div class="inspector-field">
+                            <label>Valor para Comparar</label>
+                            <input type="text" value="${config.compareValue || ''}" onchange="updateNodeConfig('${nodeId}', 'compareValue', this.value)">
+                        </div>
+                        <div class="inspector-field">
+                            <label>Expressão (modo expressão)</label>
+                            <textarea rows="3" placeholder="{{data.value}} > 10 && {{data.status}} == 'active'" onchange="updateNodeConfig('${nodeId}', 'expression', this.value)">${config.expression || ''}</textarea>
+                        </div>
+                    `;
+                    break;
+                case 'loop':
+                    html += `
+                        <div class="inspector-field">
+                            <label>Tipo de Loop</label>
+                            <select onchange="updateNodeConfig('${nodeId}', 'loopType', this.value)">
+                                <option value="count" ${config.loopType === 'count' ? 'selected' : ''}>Número de Vezes</option>
+                                <option value="while" ${config.loopType === 'while' ? 'selected' : ''}>While (condição)</option>
+                            </select>
+                        </div>
+                        <div class="inspector-field">
+                            <label>Número de Repetições</label>
+                            <input type="number" value="${config.count || 3}" min="1" max="1000" onchange="updateNodeConfig('${nodeId}', 'count', parseInt(this.value))">
+                        </div>
+                        <div class="inspector-field">
+                            <label>Condição While</label>
+                            <input type="text" value="${config.condition || ''}" placeholder="{{index}} < {{total}}" onchange="updateNodeConfig('${nodeId}', 'condition', this.value)">
+                        </div>
+                    `;
+                    break;
+                case 'foreach':
+                    html += `
+                        <div class="inspector-field">
+                            <label>Lista de Dados</label>
+                            <input type="text" value="${config.list || ''}" placeholder="{{data.items}}" onchange="updateNodeConfig('${nodeId}', 'list', this.value)">
+                        </div>
+                        <div class="inspector-field">
+                            <label>Nome da Variável de Item</label>
+                            <input type="text" value="${config.itemName || 'item'}" onchange="updateNodeConfig('${nodeId}', 'itemName', this.value)">
+                        </div>
+                        <div class="inspector-field">
+                            <label>Processamento</label>
+                            <select onchange="updateNodeConfig('${nodeId}', 'mode', this.value)">
+                                <option value="sequential" ${config.mode === 'sequential' ? 'selected' : ''}>Sequencial</option>
+                                <option value="parallel" ${config.mode === 'parallel' ? 'selected' : ''}>Paralelo</option>
+                            </select>
+                        </div>
+                    `;
+                    break;
+                case 'wait':
+                    html += `
+                        <div class="inspector-field">
+                            <label>Tipo de Espera</label>
+                            <select onchange="updateNodeConfig('${nodeId}', 'waitType', this.value)">
+                                <option value="fixed" ${config.waitType === 'fixed' ? 'selected' : ''}>Tempo Fixo</option>
+                                <option value="until" ${config.waitType === 'until' ? 'selected' : ''}>Até Hora Específica</option>
+                            </select>
+                        </div>
+                        <div class="inspector-field">
+                            <label>Segundos (tempo fixo)</label>
+                            <input type="number" value="${config.seconds || 1}" min="1" onchange="updateNodeConfig('${nodeId}', 'seconds', parseInt(this.value))">
+                        </div>
+                        <div class="inspector-field">
+                            <label>Hora (até específica)</label>
+                            <input type="time" value="${config.time || ''}" onchange="updateNodeConfig('${nodeId}', 'time', this.value)">
+                        </div>
+                    `;
+                    break;
+                case 'switch':
+                    html += `
+                        <div class="inspector-field">
+                            <label>Campo para Avaliar</label>
+                            <input type="text" value="${config.field || ''}" placeholder="{{data.status}}" onchange="updateNodeConfig('${nodeId}', 'field', this.value)">
+                        </div>
+                        <div class="inspector-field">
+                            <label>Casos (JSON)</label>
+                            <textarea rows="6" placeholder='{"case1": "valor1", "case2": "valor2"}' onchange="updateNodeConfig('${nodeId}', 'cases', this.value)">${config.cases || ''}</textarea>
+                        </div>
+                        <div class="inspector-field">
+                            <label>Padrão (default)</label>
+                            <input type="text" value="${config.default || ''}" placeholder="fallback" onchange="updateNodeConfig('${nodeId}', 'default', this.value)">
+                        </div>
+                    `;
+                    break;
+                case 'file':
+                    html += `
+                        <div class="inspector-field">
+                            <label>Nome do Arquivo</label>
+                            <input type="text" value="${config.filename || ''}" placeholder="output.json" onchange="updateNodeConfig('${nodeId}', 'filename', this.value)">
+                        </div>
+                        <div class="inspector-field">
+                            <label>Formato</label>
+                            <select onchange="updateNodeConfig('${nodeId}', 'format', this.value)">
+                                <option value="json" ${config.format === 'json' ? 'selected' : ''}>JSON</option>
+                                <option value="csv" ${config.format === 'csv' ? 'selected' : ''}>CSV</option>
+                                <option value="txt" ${config.format === 'txt' ? 'selected' : ''}>Texto</option>
+                                <option value="html" ${config.format === 'html' ? 'selected' : ''}>HTML</option>
+                                <option value="xml" ${config.format === 'xml' ? 'selected' : ''}>XML</option>
+                            </select>
+                        </div>
+                        <div class="inspector-field">
+                            <label>Conteúdo (opcional)</label>
+                            <textarea rows="4" placeholder="Use {{data}} para dados dinâmicos" onchange="updateNodeConfig('${nodeId}', 'content', this.value)">${config.content || ''}</textarea>
+                        </div>
+                    `;
+                    break;
+                case 'log':
+                    html += `
+                        <div class="inspector-field">
+                            <label>Nível</label>
+                            <select onchange="updateNodeConfig('${nodeId}', 'level', this.value)">
+                                <option value="info" ${config.level === 'info' ? 'selected' : ''}>Info</option>
+                                <option value="debug" ${config.level === 'debug' ? 'selected' : ''}>Debug</option>
+                                <option value="warning" ${config.level === 'warning' ? 'selected' : ''}>Warning</option>
+                                <option value="error" ${config.level === 'error' ? 'selected' : ''}>Error</option>
+                            </select>
+                        </div>
+                        <div class="inspector-field">
+                            <label>Mensagem</label>
+                            <textarea rows="3" placeholder="Log: {{data}}" onchange="updateNodeConfig('${nodeId}', 'message', this.value)">${config.message || ''}</textarea>
+                        </div>
+                    `;
+                    break;
+                case 'gemini':
+                case 'prompt':
+                    html += `
+                        <div class="inspector-field">
+                            <label>Prompt do Sistema</label>
+                            <textarea rows="3" placeholder="Você é um assistente..." onchange="updateNodeConfig('${nodeId}', 'systemPrompt', this.value)">${config.systemPrompt || ''}</textarea>
+                        </div>
+                        <div class="inspector-field">
+                            <label>Prompt do Usuário</label>
+                            <textarea rows="4" placeholder="Analise os dados: {{data}}" onchange="updateNodeConfig('${nodeId}', 'userPrompt', this.value)">${config.userPrompt || ''}</textarea>
+                        </div>
+                        <div class="inspector-field">
+                            <label>Temperatura</label>
+                            <input type="range" min="0" max="100" value="${(config.temperature || 0.7) * 100}" oninput="this.nextElementSibling.textContent = (this.value/100).toFixed(2); updateNodeConfig('${nodeId}', 'temperature', this.value/100)">
+                            <span>${config.temperature || 0.7}</span>
+                        </div>
+                        <div class="inspector-field">
+                            <label>Formato de Resposta</label>
+                            <select onchange="updateNodeConfig('${nodeId}', 'responseFormat', this.value)">
+                                <option value="text" ${config.responseFormat === 'text' ? 'selected' : ''}>Texto</option>
+                                <option value="json" ${config.responseFormat === 'json' ? 'selected' : ''}>JSON</option>
+                            </select>
+                        </div>
+                    `;
+                    break;
+                case 'response':
+                    html += `
+                        <div class="inspector-field">
+                            <label>Tipo de Resposta</label>
+                            <select onchange="updateNodeConfig('${nodeId}', 'responseType', this.value)">
+                                <option value="json" ${config.responseType === 'json' ? 'selected' : ''}>JSON</option>
+                                <option value="text" ${config.responseType === 'text' ? 'selected' : ''}>Texto</option>
+                                <option value="html" ${config.responseType === 'html' ? 'selected' : ''}>HTML</option>
+                            </select>
+                        </div>
+                        <div class="inspector-field">
+                            <label>Dados de Resposta</label>
+                            <textarea rows="3" placeholder="{{data}}" onchange="updateNodeConfig('${nodeId}', 'responseData', this.value)">${config.responseData || ''}</textarea>
+                        </div>
+                    `;
+                    break;
+                case 'error':
+                    html += `
+                        <div class="inspector-field">
+                            <label>Modo de Tratamento</label>
+                            <select onchange="updateNodeConfig('${nodeId}', 'errorMode', this.value)">
+                                <option value="catch" ${config.errorMode === 'catch' ? 'selected' : ''}>Capturar Erro</option>
+                                <option value="retry" ${config.errorMode === 'retry' ? 'selected' : ''}>Tentar Novamente</option>
+                                <option value="ignore" ${config.errorMode === 'ignore' ? 'selected' : ''}>Ignorar</option>
+                            </select>
+                        </div>
+                        <div class="inspector-field">
+                            <label>Tentativas (retry)</label>
+                            <input type="number" value="${config.retries || 3}" min="1" max="10" onchange="updateNodeConfig('${nodeId}', 'retries', parseInt(this.value))">
+                        </div>
+                        <div class="inspector-field">
+                            <label>Mensagem de Fallback</label>
+                            <input type="text" value="${config.fallbackMessage || ''}" onchange="updateNodeConfig('${nodeId}', 'fallbackMessage', this.value)">
+                        </div>
+                    `;
+                    break;
+                default:
+                    html += '<p style="color: var(--text-muted); font-size: 0.8rem;">Selecione as propriedades básicas acima</p>';
+            }
+            
+            html += '</div>';
+            return html;
+        }
+
+        async function updateNodeName(nodeId, name) {
+            nodes[nodeId].name = name;
+            showSaveIndicator('saving');
+            
+            try {
+                await fetch(`/api/projects/${projectId}/nodes/${nodeId}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name })
+                });
+                
+                const titleEl = document.querySelector(`#node-${nodeId} .node-title`);
+                if (titleEl) titleEl.textContent = name;
+                showSaveIndicator('saved');
+            } catch (error) {
+                console.error('Erro ao atualizar nome:', error);
+            }
+        }
+
+        async function updateNodeConfig(nodeId, key, value) {
+            const config = nodes[nodeId].config || {};
+            config[key] = value;
+            nodes[nodeId].config = config;
+            showSaveIndicator('saving');
+            
+            try {
+                await fetch(`/api/projects/${projectId}/nodes/${nodeId}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ config })
+                });
+                
+                const bodyEl = document.querySelector(`#node-${nodeId} .node-body`);
+                if (bodyEl) bodyEl.textContent = getNodeDescription(nodes[nodeId]);
+                showSaveIndicator('saved');
+            } catch (error) {
+                console.error('Erro ao atualizar config:', error);
+            }
+        }
+
+        function closeInspector() {
+            document.getElementById('inspector').classList.add('hidden');
+            deselectNode();
+        }
+
+        function showNodeMenu(e, nodeId) {
+            e.stopPropagation();
+            selectNode(nodeId);
+            
+            const menu = document.getElementById('contextMenu');
+            menu.style.left = `${e.clientX}px`;
+            menu.style.top = `${e.clientY}px`;
+            menu.classList.add('active');
+            
+            document.addEventListener('click', hideContextMenu);
+        }
+
+        function hideContextMenu() {
+            document.getElementById('contextMenu').classList.remove('active');
+            document.removeEventListener('click', hideContextMenu);
+        }
+
+        async function deleteSelectedNode() {
+            if (!selectedNodeId) return;
+            if (!confirm('Excluir este node?')) return;
+            
+            try {
+                await fetch(`/api/projects/${projectId}/nodes/${selectedNodeId}`, { method: 'DELETE' });
+                
+                const nodeEl = document.getElementById(`node-${selectedNodeId}`);
+                if (nodeEl) nodeEl.remove();
+                
+                Object.keys(edges).forEach(edgeId => {
+                    const edge = edges[edgeId];
+                    if (edge.source_node_id === selectedNodeId || edge.target_node_id === selectedNodeId) {
+                        delete edges[edgeId];
+                    }
+                });
+                
+                delete nodes[selectedNodeId];
+                selectedNodeId = null;
+                renderConnections();
+                closeInspector();
+                showSaveIndicator('saved');
+            } catch (error) {
+                console.error('Erro ao deletar node:', error);
+            }
+        }
+
+        async function duplicateSelectedNode() {
+            if (!selectedNodeId) return;
+            
+            const originalNode = nodes[selectedNodeId];
+            const nodeId = `node_${Date.now()}`;
+            const nodeData = {
+                node_id: nodeId,
+                name: originalNode.name + ' (cópia)',
+                node_type: originalNode.node_type,
+                node_category: originalNode.node_category,
+                position_x: originalNode.position_x + 50,
+                position_y: originalNode.position_y + 50,
+                config: { ...originalNode.config }
+            };
+            
+            try {
+                const response = await fetch(`/api/projects/${projectId}/nodes`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(nodeData)
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    nodes[nodeId] = data.node;
+                    renderNode(data.node);
+                    selectNode(nodeId);
+                    showSaveIndicator('saved');
+                }
+            } catch (error) {
+                console.error('Erro ao duplicar node:', error);
+            }
+        }
+
+        function toggleSelectedNode() {
+            if (!selectedNodeId) return;
+            const node = nodes[selectedNodeId];
+            updateNodeConfig(selectedNodeId, 'enabled', !node.config?.enabled);
+        }
+
+        function updateCanvasTransform() {
+            const canvas = document.getElementById('canvas');
+            canvas.style.transform = `translate(${panX}px, ${panY}px) scale(${zoom})`;
+            document.getElementById('zoomLevel').textContent = `${Math.round(zoom * 100)}%`;
+        }
+
+        function zoomIn() {
+            zoom = Math.min(2, zoom + 0.1);
+            updateCanvasTransform();
+            saveCanvasState();
+        }
+
+        function zoomOut() {
+            zoom = Math.max(0.25, zoom - 0.1);
+            updateCanvasTransform();
+            saveCanvasState();
+        }
+
+        function resetZoom() {
+            zoom = 1;
+            panX = 0;
+            panY = 0;
+            updateCanvasTransform();
+            saveCanvasState();
+        }
+
+        function onCanvasWheel(e) {
+            e.preventDefault();
+            const delta = e.deltaY > 0 ? -0.1 : 0.1;
+            zoom = Math.min(2, Math.max(0.25, zoom + delta));
+            updateCanvasTransform();
+            
+            clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(saveCanvasState, 500);
+        }
+
+        async function saveCanvasState() {
+            try {
+                await fetch(`/api/projects/${projectId}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        canvas_zoom: zoom,
+                        canvas_offset_x: panX,
+                        canvas_offset_y: panY
+                    })
+                });
+            } catch (error) {
+                console.error('Erro ao salvar estado do canvas:', error);
+            }
+        }
+
+        function showSaveIndicator(status) {
+            const indicator = document.getElementById('saveIndicator');
+            indicator.className = 'save-indicator ' + status;
+            indicator.innerHTML = status === 'saving' 
+                ? '<i class="fas fa-spinner fa-spin"></i><span>Salvando...</span>'
+                : '<i class="fas fa-check-circle"></i><span>Salvo</span>';
+        }
+
+        function toggleConsole() {
+            document.getElementById('console').classList.toggle('hidden');
+        }
+
+        function clearConsole() {
+            document.getElementById('consoleContent').innerHTML = '';
+        }
+
+        function logToConsole(message, type = 'info') {
+            const content = document.getElementById('consoleContent');
+            const line = document.createElement('div');
+            line.className = 'console-line ' + type;
+            line.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            content.appendChild(line);
+            content.scrollTop = content.scrollHeight;
+        }
+
+        async function executeWorkflow() {
+            document.getElementById('console').classList.remove('hidden');
+            clearConsole();
+            logToConsole('Iniciando execução do workflow...', 'info');
+            
+            try {
+                const response = await fetch(`/api/projects/${projectId}/execute`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    data.output.split('\n').forEach(line => {
+                        logToConsole(line, 'success');
+                    });
+                    logToConsole('Workflow executado com sucesso!', 'success');
+                } else {
+                    logToConsole('Erro: ' + data.error, 'error');
+                }
+            } catch (error) {
+                logToConsole('Erro na execução: ' + error.message, 'error');
+            }
+        }
+
+        function filterNodes() {
+            const search = document.getElementById('nodeSearch').value.toLowerCase();
+            document.querySelectorAll('.palette-node').forEach(node => {
+                const name = node.dataset.name.toLowerCase();
+                const type = node.dataset.type.toLowerCase();
+                node.style.display = name.includes(search) || type.includes(search) ? 'flex' : 'none';
+            });
+        }
+
+        function openAddNodeMenu() {
+            document.getElementById('nodeSearch').focus();
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Delete' && selectedNodeId) {
+                deleteSelectedNode();
+            }
+            if (e.key === 'Escape') {
+                hideContextMenu();
+                cancelConnection();
+            }
+        });
+
+        init();
+    </script>
+</body>
+</html>

@@ -1,0 +1,1964 @@
+{
+  "flows": [
+    {
+      "id": 1,
+      "timestamp": "2025-12-17T02:25:54.483526",
+      "prompt": "Crie um fluxo para buscar preços de iPhone e retornar um txt com nome valor e link",
+      "intent": {
+        "objective": "Buscar preços de iPhone e retornar um arquivo .txt com nome, valor e link",
+        "output_type": "file",
+        "output_format": "txt",
+        "integrations": [],
+        "needs_credentials": false,
+        "summary": "Criar um fluxo para buscar preços de iPhone e gerar um arquivo TXT contendo nome, valor e link."
+      },
+      "flow": {
+        "name": "Buscar Preços de iPhone e Gerar TXT",
+        "description": "Fluxo para buscar preços de iPhone e gerar um arquivo TXT contendo nome, valor e link.",
+        "nodes": [
+          {
+            "id": "node_1",
+            "type": "trigger",
+            "name": "Início",
+            "config": {},
+            "next": [
+              "node_2"
+            ]
+          },
+          {
+            "id": "node_2",
+            "type": "process",
+            "name": "Buscar Preços de iPhone",
+            "config": {
+              "action": "Realizar busca por preços de iPhone em fontes de dados"
+            },
+            "next": [
+              "node_3"
+            ]
+          },
+          {
+            "id": "node_3",
+            "type": "transform",
+            "name": "Extrair Dados (Nome, Valor, Link)",
+            "config": {
+              "action": "Extrair nome, valor e link dos resultados da busca"
+            },
+            "next": [
+              "node_4"
+            ]
+          },
+          {
+            "id": "node_4",
+            "type": "transform",
+            "name": "Formatar para TXT",
+            "config": {
+              "action": "Formatar os dados extraídos (nome, valor, link) para o formato TXT"
+            },
+            "next": [
+              "node_5"
+            ]
+          },
+          {
+            "id": "node_5",
+            "type": "output",
+            "name": "Gerar Arquivo TXT",
+            "config": {
+              "format": "txt"
+            },
+            "next": []
+          }
+        ],
+        "connections": [
+          {
+            "from": "node_1",
+            "to": "node_2"
+          },
+          {
+            "from": "node_2",
+            "to": "node_3"
+          },
+          {
+            "from": "node_3",
+            "to": "node_4"
+          },
+          {
+            "from": "node_4",
+            "to": "node_5"
+          }
+        ]
+      },
+      "approved": false,
+      "errors": [
+        "Contradição na Intenção/Fluxo (Integrações): A intenção declara \"integrations\": [], mas o node \"Buscar Preços de iPhone\" (tipo 'process') implica a necessidade de integrações externas (e.g., web scraping, API de busca de preços) para cumprir o objetivo. O fluxo usa uma integração não declarada na intenção.",
+        "Credenciais Inconsistentes: A intenção declara \"needs_credentials\": false, mas a busca de preços de iPhone em fontes de dados externas (implicada pelo node 'process') geralmente requer credenciais ou configuração de acesso, o que é inconsistente com a declaração da intenção."
+      ],
+      "score": 50
+    },
+    {
+      "id": 2,
+      "timestamp": "2025-12-17T02:26:30.511453",
+      "prompt": "Crie um fluxo para buscar preços de iPhone e retornar um txt com nome valor e link",
+      "intent": {
+        "objective": "Buscar preços de iPhone e retornar um arquivo .txt com nome, valor e link.",
+        "output_type": "file",
+        "output_format": "txt",
+        "integrations": [],
+        "needs_credentials": false,
+        "summary": "Criar um fluxo para buscar preços de iPhone e gerar um arquivo TXT com os detalhes."
+      },
+      "flow": {
+        "name": "Buscar Preços de iPhone e Gerar TXT",
+        "description": "Fluxo para buscar preços de iPhone e gerar um arquivo TXT com nome, valor e link.",
+        "nodes": [
+          {
+            "id": "node_1",
+            "type": "trigger",
+            "name": "Início",
+            "config": {},
+            "next": [
+              "node_2"
+            ]
+          },
+          {
+            "id": "node_2",
+            "type": "process",
+            "name": "Buscar Preços de iPhone",
+            "config": {
+              "action": "Simular busca de preços de iPhone"
+            },
+            "next": [
+              "node_3"
+            ]
+          },
+          {
+            "id": "node_3",
+            "type": "transform",
+            "name": "Formatar Dados para TXT",
+            "config": {
+              "action": "Formatar nome, valor e link dos iPhones para o arquivo TXT"
+            },
+            "next": [
+              "node_4"
+            ]
+          },
+          {
+            "id": "node_4",
+            "type": "output",
+            "name": "Gerar Arquivo TXT",
+            "config": {
+              "format": "txt",
+              "content": "nome, valor, link"
+            },
+            "next": []
+          }
+        ],
+        "connections": [
+          {
+            "from": "node_1",
+            "to": "node_2"
+          },
+          {
+            "from": "node_2",
+            "to": "node_3"
+          },
+          {
+            "from": "node_3",
+            "to": "node_4"
+          }
+        ]
+      },
+      "approved": true,
+      "errors": [],
+      "score": 90
+    },
+    {
+      "id": 3,
+      "timestamp": "2025-12-17T02:42:15.466273",
+      "prompt": "Crie um fluxograma com retorno em json fazendo busca de preço de iPhone",
+      "intent": {
+        "objective": "Criar um fluxograma para buscar preço de iPhone",
+        "output_type": "api",
+        "output_format": "json",
+        "integrations": [],
+        "needs_credentials": false,
+        "summary": "Criar um fluxograma que realiza a busca de preço de iPhone e retorna o resultado em formato JSON."
+      },
+      "flow": {
+        "name": "Busca de Preço de iPhone",
+        "description": "Fluxograma para buscar preço de iPhone e retornar em JSON.",
+        "nodes": [
+          {
+            "id": "node_1",
+            "type": "trigger",
+            "name": "Início",
+            "config": {},
+            "next": [
+              "node_2"
+            ]
+          },
+          {
+            "id": "node_2",
+            "type": "process",
+            "name": "Buscar Preço de iPhone",
+            "config": {
+              "action": "Realiza a busca de preços de iPhones"
+            },
+            "next": [
+              "node_3"
+            ]
+          },
+          {
+            "id": "node_3",
+            "type": "output",
+            "name": "Retorno JSON",
+            "config": {
+              "format": "json"
+            },
+            "next": []
+          }
+        ],
+        "connections": [
+          {
+            "from": "node_1",
+            "to": "node_2"
+          },
+          {
+            "from": "node_2",
+            "to": "node_3"
+          }
+        ]
+      },
+      "approved": false,
+      "errors": [
+        "A intenção declara \"needs_credentials\": false e \"integrations\": [], mas o nó \"node_2\" ('Buscar Preço de iPhone') com a ação \"Realiza a busca de preços de iPhones\" implica uma integração externa para buscar dados. Isso contradiz a intenção de não precisar de credenciais e não usar integrações, falhando nos critérios de 'Credenciais desnecessárias' e 'Nodes usam apenas integrações listadas na intenção'."
+      ],
+      "score": 50
+    },
+    {
+      "id": 4,
+      "timestamp": "2025-12-17T02:42:56.579584",
+      "prompt": "Crie um fluxograma com retorno em json fazendo busca de preço de iPhone",
+      "intent": {
+        "objective": "Criar um fluxograma para buscar preços de iPhone",
+        "output_type": "api",
+        "output_format": "json",
+        "integrations": [],
+        "needs_credentials": false,
+        "summary": "Criar um fluxograma que realiza a busca de preços de iPhone e retorna os resultados em formato JSON."
+      },
+      "flow": {
+        "name": "Busca de Preços de iPhone",
+        "description": "Fluxograma para buscar preços de iPhone e retornar os resultados em formato JSON.",
+        "nodes": [
+          {
+            "id": "node_1",
+            "type": "trigger",
+            "name": "Início",
+            "config": {},
+            "next": [
+              "node_2"
+            ]
+          },
+          {
+            "id": "node_2",
+            "type": "process",
+            "name": "Buscar Preços de iPhone",
+            "config": {
+              "action": "Realiza a busca de preços de iPhone"
+            },
+            "next": [
+              "node_3"
+            ]
+          },
+          {
+            "id": "node_3",
+            "type": "output",
+            "name": "Retornar Preços em JSON",
+            "config": {
+              "format": "json"
+            },
+            "next": []
+          }
+        ],
+        "connections": [
+          {
+            "from": "node_1",
+            "to": "node_2"
+          },
+          {
+            "from": "node_2",
+            "to": "node_3"
+          }
+        ]
+      },
+      "approved": false,
+      "errors": [
+        "Credenciais desnecessárias: A intenção declara \"needs_credentials\": false, mas o node 'Buscar Preços de iPhone' (node_2) descreve uma ação de busca de preços que geralmente requer acesso a serviços externos e, portanto, credenciais.",
+        "Integração ausente na intenção: O node 'Buscar Preços de iPhone' (node_2) descreve uma ação que requer uma integração externa (ex: API de preços, web scraping), mas a intenção declara \"integrations\": []. O fluxo utiliza uma integração que não foi listada na intenção."
+      ],
+      "score": 40
+    },
+    {
+      "id": 5,
+      "timestamp": "2025-12-17T02:43:25.646148",
+      "prompt": "Crie um fluxograma com retorno em json fazendo busca de preço de iPhone",
+      "intent": {
+        "objective": "Criar um fluxograma para buscar preços de iPhone",
+        "output_type": "api",
+        "output_format": "json",
+        "integrations": [],
+        "needs_credentials": false,
+        "summary": "Criar um fluxograma que realiza a busca de preços de iPhone e retorna os resultados em formato JSON."
+      },
+      "flow": {
+        "name": "Busca de Preço de iPhone",
+        "description": "Fluxograma para buscar preços de iPhone e retornar os resultados em formato JSON.",
+        "nodes": [
+          {
+            "id": "node_1",
+            "type": "trigger",
+            "name": "Início da Busca",
+            "config": {},
+            "next": [
+              "node_2"
+            ]
+          },
+          {
+            "id": "node_2",
+            "type": "process",
+            "name": "Buscar Preços de iPhone",
+            "config": {
+              "action": "Realiza a busca conceitual por preços de diferentes modelos de iPhone."
+            },
+            "next": [
+              "node_3"
+            ]
+          },
+          {
+            "id": "node_3",
+            "type": "output",
+            "name": "Retornar Preços (JSON)",
+            "config": {
+              "format": "json"
+            },
+            "next": []
+          }
+        ],
+        "connections": [
+          {
+            "from": "node_1",
+            "to": "node_2"
+          },
+          {
+            "from": "node_2",
+            "to": "node_3"
+          }
+        ]
+      },
+      "approved": true,
+      "errors": [],
+      "score": 90
+    },
+    {
+      "id": 6,
+      "timestamp": "2025-12-17T03:04:56.303633",
+      "prompt": "Crie uma automação para vê imagem",
+      "intent": {
+        "objective": "Crie uma automação para vê imagem",
+        "output_type": "file",
+        "output_format": null,
+        "integrations": [],
+        "needs_credentials": false,
+        "summary": "Analisar: Crie uma automação para vê imagem"
+      },
+      "flow": {
+        "name": "Fluxo padrão",
+        "description": "Analisar: Crie uma automação para vê imagem",
+        "nodes": [
+          {
+            "id": "node_1",
+            "type": "trigger",
+            "name": "Início",
+            "config": {},
+            "next": [
+              "node_2"
+            ]
+          },
+          {
+            "id": "node_2",
+            "type": "process",
+            "name": "Processamento",
+            "config": {
+              "action": "Crie uma automação para vê imagem"
+            },
+            "next": [
+              "node_3"
+            ]
+          },
+          {
+            "id": "node_3",
+            "type": "output",
+            "name": "Saída",
+            "config": {
+              "format": null,
+              "destination": "local"
+            },
+            "next": []
+          }
+        ],
+        "connections": [
+          {
+            "from": "node_1",
+            "to": "node_2"
+          },
+          {
+            "from": "node_2",
+            "to": "node_3"
+          }
+        ]
+      },
+      "approved": true,
+      "errors": [],
+      "score": 80
+    },
+    {
+      "id": 7,
+      "timestamp": "2025-12-17T03:05:04.964235",
+      "prompt": "Crie uma automação para vê imagem",
+      "intent": {
+        "objective": "Crie uma automação para vê imagem",
+        "output_type": "file",
+        "output_format": null,
+        "integrations": [],
+        "needs_credentials": false,
+        "summary": "Analisar: Crie uma automação para vê imagem"
+      },
+      "flow": {
+        "name": "Fluxo padrão",
+        "description": "Analisar: Crie uma automação para vê imagem",
+        "nodes": [
+          {
+            "id": "node_1",
+            "type": "trigger",
+            "name": "Início",
+            "config": {},
+            "next": [
+              "node_2"
+            ]
+          },
+          {
+            "id": "node_2",
+            "type": "process",
+            "name": "Processamento",
+            "config": {
+              "action": "Crie uma automação para vê imagem"
+            },
+            "next": [
+              "node_3"
+            ]
+          },
+          {
+            "id": "node_3",
+            "type": "output",
+            "name": "Saída",
+            "config": {
+              "format": null,
+              "destination": "local"
+            },
+            "next": []
+          }
+        ],
+        "connections": [
+          {
+            "from": "node_1",
+            "to": "node_2"
+          },
+          {
+            "from": "node_2",
+            "to": "node_3"
+          }
+        ]
+      },
+      "approved": true,
+      "errors": [],
+      "score": 80
+    },
+    {
+      "id": 8,
+      "timestamp": "2025-12-17T03:05:45.032289",
+      "prompt": "Crie uma automação para pesquisar preço",
+      "intent": {
+        "objective": "Crie uma automação para pesquisar preço",
+        "output_type": "file",
+        "output_format": null,
+        "integrations": [],
+        "needs_credentials": false,
+        "summary": "Analisar: Crie uma automação para pesquisar preço"
+      },
+      "flow": {
+        "name": "Fluxo padrão",
+        "description": "Analisar: Crie uma automação para pesquisar preço",
+        "nodes": [
+          {
+            "id": "node_1",
+            "type": "trigger",
+            "name": "Início",
+            "config": {},
+            "next": [
+              "node_2"
+            ]
+          },
+          {
+            "id": "node_2",
+            "type": "process",
+            "name": "Processamento",
+            "config": {
+              "action": "Crie uma automação para pesquisar preço"
+            },
+            "next": [
+              "node_3"
+            ]
+          },
+          {
+            "id": "node_3",
+            "type": "output",
+            "name": "Saída",
+            "config": {
+              "format": null,
+              "destination": "local"
+            },
+            "next": []
+          }
+        ],
+        "connections": [
+          {
+            "from": "node_1",
+            "to": "node_2"
+          },
+          {
+            "from": "node_2",
+            "to": "node_3"
+          }
+        ]
+      },
+      "approved": true,
+      "errors": [],
+      "score": 80
+    },
+    {
+      "id": 9,
+      "timestamp": "2025-12-17T03:07:36.762869",
+      "prompt": "Crie uma automação para pesquisar preço de iPhone",
+      "intent": {
+        "objective": "Criar uma automação para pesquisar o preço de iPhones.",
+        "output_type": "api",
+        "output_format": null,
+        "integrations": [],
+        "needs_credentials": false,
+        "summary": "Cria uma API para pesquisar o preço de iPhones."
+      },
+      "flow": {
+        "name": "Pesquisa de Preço de iPhone",
+        "description": "Automação para pesquisar o preço de iPhones via API.",
+        "nodes": [
+          {
+            "id": "node_1",
+            "type": "trigger",
+            "name": "Início da Pesquisa",
+            "config": {},
+            "next": [
+              "node_2"
+            ]
+          },
+          {
+            "id": "node_2",
+            "type": "process",
+            "name": "Pesquisar Preço de iPhones",
+            "config": {
+              "action": "Simula a pesquisa de preços de iPhones."
+            },
+            "next": [
+              "node_3"
+            ]
+          },
+          {
+            "id": "node_3",
+            "type": "output",
+            "name": "Retornar Preços (API)",
+            "config": {
+              "format": "json"
+            },
+            "next": []
+          }
+        ],
+        "connections": [
+          {
+            "from": "node_1",
+            "to": "node_2"
+          },
+          {
+            "from": "node_2",
+            "to": "node_3"
+          }
+        ]
+      },
+      "approved": true,
+      "errors": [],
+      "score": 95
+    },
+    {
+      "id": 10,
+      "timestamp": "2025-12-17T03:13:25.126671",
+      "prompt": "Crie um fluxo de pesquisa de valor em bolsas de valores dólares, euro , e me retornar as informações no Telegram",
+      "intent": {
+        "objective": "Pesquisar valores de bolsas de valores em dólares e euros",
+        "output_type": "message",
+        "output_format": null,
+        "integrations": [
+          "telegram"
+        ],
+        "needs_credentials": true,
+        "summary": "Pesquisar valores de bolsas de valores em dólares e euros e enviar as informações via Telegram."
+      },
+      "flow": {
+        "name": "Pesquisa de Valores em Bolsas de Valores",
+        "description": "Pesquisar valores de bolsas de valores em dólares e euros e enviar as informações via Telegram.",
+        "nodes": [
+          {
+            "id": "node_1",
+            "type": "trigger",
+            "name": "Início",
+            "config": {},
+            "next": [
+              "node_2"
+            ]
+          },
+          {
+            "id": "node_2",
+            "type": "process",
+            "name": "Pesquisar Valores de Bolsas",
+            "config": {
+              "action": "Pesquisar valores de bolsas de valores em dólares e euros"
+            },
+            "next": [
+              "node_3"
+            ]
+          },
+          {
+            "id": "node_3",
+            "type": "integration",
+            "name": "Enviar para Telegram",
+            "config": {
+              "integration_name": "telegram",
+              "action": "send_message",
+              "message": "Os valores das bolsas de valores em dólares e euros são: [dados da pesquisa]"
+            },
+            "next": [
+              "node_4"
+            ]
+          },
+          {
+            "id": "node_4",
+            "type": "output",
+            "name": "Saída",
+            "config": {
+              "format": "message"
+            },
+            "next": []
+          }
+        ],
+        "connections": [
+          {
+            "from": "node_1",
+            "to": "node_2"
+          },
+          {
+            "from": "node_2",
+            "to": "node_3"
+          },
+          {
+            "from": "node_3",
+            "to": "node_4"
+          }
+        ]
+      },
+      "approved": true,
+      "errors": [],
+      "score": 80
+    },
+    {
+      "id": 11,
+      "timestamp": "2025-12-17T04:19:18.402137",
+      "prompt": "Crie um fluxo que veja os valores do dólar da cotação das moedas em euro USB JPY e me retorne as mensagens no Telegram no boot.",
+      "intent": {
+        "objective": "Crie um fluxo que veja os valores do dólar da cotação das moedas em euro USB JPY e me retorne as men",
+        "output_type": "file",
+        "output_format": null,
+        "integrations": [
+          "telegram",
+          "currency_api"
+        ],
+        "needs_credentials": true,
+        "required_credentials": [
+          {
+            "integration": "telegram",
+            "name": "Telegram Bot",
+            "keys": [
+              "TELEGRAM_BOT_TOKEN",
+              "TELEGRAM_CHAT_ID"
+            ],
+            "instructions": {
+              "TELEGRAM_BOT_TOKEN": "1. Abra o Telegram e procure por @BotFather\n2. Envie /newbot e siga as instruções\n3. Copie o token fornecido (formato: 123456789:ABCdefGHIjklMNOpqrsTUVwxyz)",
+              "TELEGRAM_CHAT_ID": "1. Adicione seu bot a um grupo ou inicie uma conversa\n2. Envie uma mensagem para o bot\n3. Acesse: https://api.telegram.org/bot<SEU_TOKEN>/getUpdates\n4. Procure pelo chat.id no JSON retornado"
+            },
+            "docs_url": "https://core.telegram.org/bots/api",
+            "note": "",
+            "configured": false
+          },
+          {
+            "integration": "currency_api",
+            "name": "API de Cotações (AwesomeAPI)",
+            "keys": [],
+            "instructions": {},
+            "docs_url": "https://docs.awesomeapi.com.br/api-de-moedas",
+            "note": "API gratuita, não requer autenticação",
+            "configured": true
+          }
+        ],
+        "summary": "Analisar: Crie um fluxo que veja os valores do dólar da cota"
+      },
+      "flow": {
+        "name": "Fluxo padrão",
+        "description": "Analisar: Crie um fluxo que veja os valores do dólar da cota",
+        "nodes": [
+          {
+            "id": "node_1",
+            "type": "trigger",
+            "name": "Início",
+            "config": {},
+            "next": [
+              "node_2"
+            ]
+          },
+          {
+            "id": "node_2",
+            "type": "process",
+            "name": "Processamento",
+            "config": {
+              "action": "Crie um fluxo que veja os valores do dólar da cotação das moedas em euro USB JPY e me retorne as men"
+            },
+            "next": [
+              "node_3"
+            ]
+          },
+          {
+            "id": "node_3",
+            "type": "output",
+            "name": "Saída",
+            "config": {
+              "format": null,
+              "destination": "local"
+            },
+            "next": []
+          }
+        ],
+        "connections": [
+          {
+            "from": "node_1",
+            "to": "node_2"
+          },
+          {
+            "from": "node_2",
+            "to": "node_3"
+          }
+        ]
+      },
+      "approved": true,
+      "errors": [],
+      "score": 80
+    },
+    {
+      "id": 12,
+      "timestamp": "2025-12-17T04:33:33.725138",
+      "prompt": "Crie um fluxo do aqui, faça uma conferência nas cotações de moeda, dólar e todas as moedas possíveis e me retorne uma resposta no meu Telegram no boot.",
+      "intent": {
+        "objective": "Crie um fluxo do aqui, faça uma conferência nas cotações de moeda, dólar e todas as moedas possíveis",
+        "output_type": "file",
+        "output_format": null,
+        "integrations": [
+          "telegram",
+          "currency_api"
+        ],
+        "needs_credentials": true,
+        "required_credentials": [
+          {
+            "integration": "telegram",
+            "name": "Telegram Bot",
+            "keys": [
+              "TELEGRAM_BOT_TOKEN",
+              "TELEGRAM_CHAT_ID"
+            ],
+            "instructions": {
+              "TELEGRAM_BOT_TOKEN": "1. Abra o Telegram e procure por @BotFather\n2. Envie /newbot e siga as instruções\n3. Copie o token fornecido (formato: 123456789:ABCdefGHIjklMNOpqrsTUVwxyz)",
+              "TELEGRAM_CHAT_ID": "1. Adicione seu bot a um grupo ou inicie uma conversa\n2. Envie uma mensagem para o bot\n3. Acesse: https://api.telegram.org/bot<SEU_TOKEN>/getUpdates\n4. Procure pelo chat.id no JSON retornado"
+            },
+            "docs_url": "https://core.telegram.org/bots/api",
+            "note": "",
+            "configured": false
+          },
+          {
+            "integration": "currency_api",
+            "name": "API de Cotações (AwesomeAPI)",
+            "keys": [],
+            "instructions": {},
+            "docs_url": "https://docs.awesomeapi.com.br/api-de-moedas",
+            "note": "API gratuita, não requer autenticação",
+            "configured": true
+          }
+        ],
+        "summary": "Analisar: Crie um fluxo do aqui, faça uma conferência nas co"
+      },
+      "flow": {
+        "name": "Fluxo padrão",
+        "description": "Analisar: Crie um fluxo do aqui, faça uma conferência nas co",
+        "nodes": [
+          {
+            "id": "node_1",
+            "type": "trigger",
+            "name": "Início",
+            "config": {},
+            "next": [
+              "node_2"
+            ]
+          },
+          {
+            "id": "node_2",
+            "type": "process",
+            "name": "Processamento",
+            "config": {
+              "action": "Crie um fluxo do aqui, faça uma conferência nas cotações de moeda, dólar e todas as moedas possíveis"
+            },
+            "next": [
+              "node_3"
+            ]
+          },
+          {
+            "id": "node_3",
+            "type": "output",
+            "name": "Saída",
+            "config": {
+              "format": null,
+              "destination": "local"
+            },
+            "next": []
+          }
+        ],
+        "connections": [
+          {
+            "from": "node_1",
+            "to": "node_2"
+          },
+          {
+            "from": "node_2",
+            "to": "node_3"
+          }
+        ]
+      },
+      "approved": true,
+      "errors": [],
+      "score": 80
+    },
+    {
+      "id": 13,
+      "timestamp": "2025-12-17T05:17:34.088939",
+      "prompt": "Quero que gere pra mim um fluxo verificando o preço do dólar e fazendo a cotação das moedas quero que retorne uma mensagem no meu boot do Telegram",
+      "intent": {
+        "objective": "Quero que gere pra mim um fluxo verificando o preço do dólar e fazendo a cotação das moedas quero qu",
+        "output_type": "file",
+        "output_format": null,
+        "integrations": [
+          "telegram",
+          "currency_api"
+        ],
+        "needs_credentials": true,
+        "required_credentials": [
+          {
+            "integration": "telegram",
+            "name": "Telegram Bot",
+            "keys": [
+              "TELEGRAM_BOT_TOKEN",
+              "TELEGRAM_CHAT_ID"
+            ],
+            "instructions": {
+              "TELEGRAM_BOT_TOKEN": "1. Abra o Telegram e procure por @BotFather\n2. Envie /newbot e siga as instruções\n3. Copie o token fornecido (formato: 123456789:ABCdefGHIjklMNOpqrsTUVwxyz)",
+              "TELEGRAM_CHAT_ID": "1. Adicione seu bot a um grupo ou inicie uma conversa\n2. Envie uma mensagem para o bot\n3. Acesse: https://api.telegram.org/bot<SEU_TOKEN>/getUpdates\n4. Procure pelo chat.id no JSON retornado"
+            },
+            "docs_url": "https://core.telegram.org/bots/api",
+            "note": "",
+            "configured": false
+          },
+          {
+            "integration": "currency_api",
+            "name": "API de Cotações (AwesomeAPI)",
+            "keys": [],
+            "instructions": {},
+            "docs_url": "https://docs.awesomeapi.com.br/api-de-moedas",
+            "note": "API gratuita, não requer autenticação",
+            "configured": true
+          }
+        ],
+        "summary": "Analisar: Quero que gere pra mim um fluxo verificando o preç"
+      },
+      "flow": {
+        "name": "Fluxo padrão",
+        "description": "Analisar: Quero que gere pra mim um fluxo verificando o preç",
+        "nodes": [
+          {
+            "id": "node_1",
+            "type": "trigger",
+            "name": "Início",
+            "config": {},
+            "next": [
+              "node_2"
+            ]
+          },
+          {
+            "id": "node_2",
+            "type": "process",
+            "name": "Processamento",
+            "config": {
+              "action": "Quero que gere pra mim um fluxo verificando o preço do dólar e fazendo a cotação das moedas quero qu"
+            },
+            "next": [
+              "node_3"
+            ]
+          },
+          {
+            "id": "node_3",
+            "type": "output",
+            "name": "Saída",
+            "config": {
+              "format": null,
+              "destination": "local"
+            },
+            "next": []
+          }
+        ],
+        "connections": [
+          {
+            "from": "node_1",
+            "to": "node_2"
+          },
+          {
+            "from": "node_2",
+            "to": "node_3"
+          }
+        ]
+      },
+      "approved": true,
+      "errors": [],
+      "score": 80
+    },
+    {
+      "id": 14,
+      "timestamp": "2025-12-17T05:18:41.556722",
+      "prompt": "Crie um fluxo que verifica preços de moedas e cotações de dólar e me dê um retorno no meu boot do Telegram",
+      "intent": {
+        "objective": "Crie um fluxo que verifica preços de moedas e cotações de dólar e me dê um retorno no meu boot do Te",
+        "output_type": "file",
+        "output_format": null,
+        "integrations": [
+          "telegram",
+          "currency_api"
+        ],
+        "needs_credentials": true,
+        "required_credentials": [
+          {
+            "integration": "telegram",
+            "name": "Telegram Bot",
+            "keys": [
+              "TELEGRAM_BOT_TOKEN",
+              "TELEGRAM_CHAT_ID"
+            ],
+            "instructions": {
+              "TELEGRAM_BOT_TOKEN": "1. Abra o Telegram e procure por @BotFather\n2. Envie /newbot e siga as instruções\n3. Copie o token fornecido (formato: 123456789:ABCdefGHIjklMNOpqrsTUVwxyz)",
+              "TELEGRAM_CHAT_ID": "1. Adicione seu bot a um grupo ou inicie uma conversa\n2. Envie uma mensagem para o bot\n3. Acesse: https://api.telegram.org/bot<SEU_TOKEN>/getUpdates\n4. Procure pelo chat.id no JSON retornado"
+            },
+            "docs_url": "https://core.telegram.org/bots/api",
+            "note": "",
+            "configured": false
+          },
+          {
+            "integration": "currency_api",
+            "name": "API de Cotações (AwesomeAPI)",
+            "keys": [],
+            "instructions": {},
+            "docs_url": "https://docs.awesomeapi.com.br/api-de-moedas",
+            "note": "API gratuita, não requer autenticação",
+            "configured": true
+          }
+        ],
+        "summary": "Analisar: Crie um fluxo que verifica preços de moedas e cota"
+      },
+      "flow": {
+        "name": "Fluxo padrão",
+        "description": "Analisar: Crie um fluxo que verifica preços de moedas e cota",
+        "nodes": [
+          {
+            "id": "node_1",
+            "type": "trigger",
+            "name": "Início",
+            "config": {},
+            "next": [
+              "node_2"
+            ]
+          },
+          {
+            "id": "node_2",
+            "type": "process",
+            "name": "Processamento",
+            "config": {
+              "action": "Crie um fluxo que verifica preços de moedas e cotações de dólar e me dê um retorno no meu boot do Te"
+            },
+            "next": [
+              "node_3"
+            ]
+          },
+          {
+            "id": "node_3",
+            "type": "output",
+            "name": "Saída",
+            "config": {
+              "format": null,
+              "destination": "local"
+            },
+            "next": []
+          }
+        ],
+        "connections": [
+          {
+            "from": "node_1",
+            "to": "node_2"
+          },
+          {
+            "from": "node_2",
+            "to": "node_3"
+          }
+        ]
+      },
+      "approved": true,
+      "errors": [],
+      "score": 80
+    },
+    {
+      "id": 15,
+      "timestamp": "2025-12-17T05:25:22.403472",
+      "prompt": "Eu quero que crie um fluxo para verificar preço de moedas e enviar as informações no boot do Telegram.",
+      "intent": {
+        "objective": "Eu quero que crie um fluxo para verificar preço de moedas e enviar as informações no boot do Telegra",
+        "output_type": "file",
+        "output_format": null,
+        "integrations": [
+          "telegram",
+          "currency_api"
+        ],
+        "needs_credentials": true,
+        "required_credentials": [
+          {
+            "integration": "telegram",
+            "name": "Telegram Bot",
+            "keys": [
+              "TELEGRAM_BOT_TOKEN",
+              "TELEGRAM_CHAT_ID"
+            ],
+            "instructions": {
+              "TELEGRAM_BOT_TOKEN": "1. Abra o Telegram e procure por @BotFather\n2. Envie /newbot e siga as instruções\n3. Copie o token fornecido (formato: 123456789:ABCdefGHIjklMNOpqrsTUVwxyz)",
+              "TELEGRAM_CHAT_ID": "1. Adicione seu bot a um grupo ou inicie uma conversa\n2. Envie uma mensagem para o bot\n3. Acesse: https://api.telegram.org/bot<SEU_TOKEN>/getUpdates\n4. Procure pelo chat.id no JSON retornado"
+            },
+            "docs_url": "https://core.telegram.org/bots/api",
+            "note": "",
+            "configured": false
+          },
+          {
+            "integration": "currency_api",
+            "name": "API de Cotações (AwesomeAPI)",
+            "keys": [],
+            "instructions": {},
+            "docs_url": "https://docs.awesomeapi.com.br/api-de-moedas",
+            "note": "API gratuita, não requer autenticação",
+            "configured": true
+          }
+        ],
+        "summary": "Analisar: Eu quero que crie um fluxo para verificar preço de"
+      },
+      "flow": {
+        "name": "Fluxo padrão",
+        "description": "Analisar: Eu quero que crie um fluxo para verificar preço de",
+        "nodes": [
+          {
+            "id": "node_1",
+            "type": "trigger",
+            "name": "Início",
+            "config": {},
+            "next": [
+              "node_2"
+            ]
+          },
+          {
+            "id": "node_2",
+            "type": "process",
+            "name": "Processamento",
+            "config": {
+              "action": "Eu quero que crie um fluxo para verificar preço de moedas e enviar as informações no boot do Telegra"
+            },
+            "next": [
+              "node_3"
+            ]
+          },
+          {
+            "id": "node_3",
+            "type": "output",
+            "name": "Saída",
+            "config": {
+              "format": null,
+              "destination": "local"
+            },
+            "next": []
+          }
+        ],
+        "connections": [
+          {
+            "from": "node_1",
+            "to": "node_2"
+          },
+          {
+            "from": "node_2",
+            "to": "node_3"
+          }
+        ]
+      },
+      "approved": true,
+      "errors": [],
+      "score": 80
+    },
+    {
+      "id": 16,
+      "timestamp": "2025-12-17T05:32:32.259836",
+      "prompt": "Quero que crie um fluxo que verifica preco de moedas e mostra as informações no Telegram",
+      "intent": {
+        "objective": "Verificar o preço de moedas e exibir as informações no Telegram.",
+        "output_type": "message",
+        "output_format": null,
+        "integrations": [
+          "currency_api",
+          "telegram"
+        ],
+        "needs_credentials": true,
+        "summary": "Verificar cotações de moedas e enviar as informações para o Telegram.",
+        "required_credentials": [
+          {
+            "integration": "currency_api",
+            "name": "API de Cotações (AwesomeAPI)",
+            "keys": [],
+            "instructions": {},
+            "docs_url": "https://docs.awesomeapi.com.br/api-de-moedas",
+            "note": "API gratuita, não requer autenticação",
+            "configured": true
+          },
+          {
+            "integration": "telegram",
+            "name": "Telegram Bot",
+            "keys": [
+              "TELEGRAM_BOT_TOKEN",
+              "TELEGRAM_CHAT_ID"
+            ],
+            "instructions": {
+              "TELEGRAM_BOT_TOKEN": "1. Abra o Telegram e procure por @BotFather\n2. Envie /newbot e siga as instruções\n3. Copie o token fornecido (formato: 123456789:ABCdefGHIjklMNOpqrsTUVwxyz)",
+              "TELEGRAM_CHAT_ID": "1. Adicione seu bot a um grupo ou inicie uma conversa\n2. Envie uma mensagem para o bot\n3. Acesse: https://api.telegram.org/bot<SEU_TOKEN>/getUpdates\n4. Procure pelo chat.id no JSON retornado"
+            },
+            "docs_url": "https://core.telegram.org/bots/api",
+            "note": "",
+            "configured": false
+          }
+        ]
+      },
+      "flow": {
+        "name": "Fluxo padrão",
+        "description": "Verificar cotações de moedas e enviar as informações para o Telegram.",
+        "nodes": [
+          {
+            "id": "node_1",
+            "type": "trigger",
+            "name": "Início",
+            "config": {},
+            "next": [
+              "node_2"
+            ]
+          },
+          {
+            "id": "node_2",
+            "type": "process",
+            "name": "Processamento",
+            "config": {
+              "action": "Verificar o preço de moedas e exibir as informações no Telegram."
+            },
+            "next": [
+              "node_3"
+            ]
+          },
+          {
+            "id": "node_3",
+            "type": "output",
+            "name": "Saída",
+            "config": {
+              "format": null,
+              "destination": "local"
+            },
+            "next": []
+          }
+        ],
+        "connections": [
+          {
+            "from": "node_1",
+            "to": "node_2"
+          },
+          {
+            "from": "node_2",
+            "to": "node_3"
+          }
+        ]
+      },
+      "approved": false,
+      "errors": [
+        "Saída incorreta: A intenção especifica 'output_type: \"message\"', mas o nó 'output' do fluxo tem 'destination: \"local\"', o que não corresponde ao envio de uma mensagem via Telegram.",
+        "Integrações ausentes: O fluxo não inclui nós específicos para a integração 'currency_api' para buscar dados de moedas, nem para a integração 'telegram' para enviar a mensagem, apesar de ambas estarem listadas na intenção e serem cruciais para o objetivo. O nó 'process' é muito genérico e não representa uma chamada de integração."
+      ],
+      "score": 30
+    },
+    {
+      "id": 17,
+      "timestamp": "2025-12-17T05:32:42.403292",
+      "prompt": "Quero que crie um fluxo que verifica preco de moedas e mostra as informações no Telegram",
+      "intent": {
+        "objective": "Quero que crie um fluxo que verifica preco de moedas e mostra as informações no Telegram",
+        "output_type": "file",
+        "output_format": null,
+        "integrations": [
+          "telegram",
+          "currency_api"
+        ],
+        "needs_credentials": true,
+        "required_credentials": [
+          {
+            "integration": "telegram",
+            "name": "Telegram Bot",
+            "keys": [
+              "TELEGRAM_BOT_TOKEN",
+              "TELEGRAM_CHAT_ID"
+            ],
+            "instructions": {
+              "TELEGRAM_BOT_TOKEN": "1. Abra o Telegram e procure por @BotFather\n2. Envie /newbot e siga as instruções\n3. Copie o token fornecido (formato: 123456789:ABCdefGHIjklMNOpqrsTUVwxyz)",
+              "TELEGRAM_CHAT_ID": "1. Adicione seu bot a um grupo ou inicie uma conversa\n2. Envie uma mensagem para o bot\n3. Acesse: https://api.telegram.org/bot<SEU_TOKEN>/getUpdates\n4. Procure pelo chat.id no JSON retornado"
+            },
+            "docs_url": "https://core.telegram.org/bots/api",
+            "note": "",
+            "configured": false
+          },
+          {
+            "integration": "currency_api",
+            "name": "API de Cotações (AwesomeAPI)",
+            "keys": [],
+            "instructions": {},
+            "docs_url": "https://docs.awesomeapi.com.br/api-de-moedas",
+            "note": "API gratuita, não requer autenticação",
+            "configured": true
+          }
+        ],
+        "summary": "Analisar: Quero que crie um fluxo que verifica preco de moed"
+      },
+      "flow": {
+        "name": "Fluxo padrão",
+        "description": "Analisar: Quero que crie um fluxo que verifica preco de moed",
+        "nodes": [
+          {
+            "id": "node_1",
+            "type": "trigger",
+            "name": "Início",
+            "config": {},
+            "next": [
+              "node_2"
+            ]
+          },
+          {
+            "id": "node_2",
+            "type": "process",
+            "name": "Processamento",
+            "config": {
+              "action": "Quero que crie um fluxo que verifica preco de moedas e mostra as informações no Telegram"
+            },
+            "next": [
+              "node_3"
+            ]
+          },
+          {
+            "id": "node_3",
+            "type": "output",
+            "name": "Saída",
+            "config": {
+              "format": null,
+              "destination": "local"
+            },
+            "next": []
+          }
+        ],
+        "connections": [
+          {
+            "from": "node_1",
+            "to": "node_2"
+          },
+          {
+            "from": "node_2",
+            "to": "node_3"
+          }
+        ]
+      },
+      "approved": true,
+      "errors": [],
+      "score": 80
+    },
+    {
+      "id": 18,
+      "timestamp": "2025-12-17T06:31:13.066035",
+      "prompt": "gere um fluxo de automacao pesqquisando preco de dolar e moedas , e retornandoas respostas no telegram",
+      "intent": {
+        "objective": "Pesquisar cotações de dólar e outras moedas e retornar as respostas no Telegram.",
+        "output_type": "message",
+        "output_format": null,
+        "integrations": [
+          "currency_api",
+          "telegram"
+        ],
+        "needs_credentials": true,
+        "summary": "Automatizar a pesquisa de cotações de dólar e outras moedas e enviar os resultados via Telegram.",
+        "required_credentials": [
+          {
+            "integration": "currency_api",
+            "name": "API de Cotações (AwesomeAPI)",
+            "keys": [],
+            "instructions": {},
+            "docs_url": "https://docs.awesomeapi.com.br/api-de-moedas",
+            "note": "API gratuita, não requer autenticação",
+            "configured": true
+          },
+          {
+            "integration": "telegram",
+            "name": "Telegram Bot",
+            "keys": [
+              "TELEGRAM_BOT_TOKEN",
+              "TELEGRAM_CHAT_ID"
+            ],
+            "instructions": {
+              "TELEGRAM_BOT_TOKEN": "1. Abra o Telegram e procure por @BotFather\n2. Envie /newbot e siga as instruções\n3. Copie o token fornecido (formato: 123456789:ABCdefGHIjklMNOpqrsTUVwxyz)",
+              "TELEGRAM_CHAT_ID": "1. Adicione seu bot a um grupo ou inicie uma conversa\n2. Envie uma mensagem para o bot\n3. Acesse: https://api.telegram.org/bot<SEU_TOKEN>/getUpdates\n4. Procure pelo chat.id no JSON retornado"
+            },
+            "docs_url": "https://core.telegram.org/bots/api",
+            "note": "",
+            "configured": false
+          }
+        ]
+      },
+      "flow": {
+        "name": "Fluxo padrão",
+        "description": "Automatizar a pesquisa de cotações de dólar e outras moedas e enviar os resultados via Telegram.",
+        "nodes": [
+          {
+            "id": "node_1",
+            "type": "trigger",
+            "name": "Início",
+            "config": {},
+            "next": [
+              "node_2"
+            ]
+          },
+          {
+            "id": "node_2",
+            "type": "process",
+            "name": "Processamento",
+            "config": {
+              "action": "Pesquisar cotações de dólar e outras moedas e retornar as respostas no Telegram."
+            },
+            "next": [
+              "node_3"
+            ]
+          },
+          {
+            "id": "node_3",
+            "type": "output",
+            "name": "Saída",
+            "config": {
+              "format": null,
+              "destination": "local"
+            },
+            "next": []
+          }
+        ],
+        "connections": [
+          {
+            "from": "node_1",
+            "to": "node_2"
+          },
+          {
+            "from": "node_2",
+            "to": "node_3"
+          }
+        ]
+      },
+      "approved": true,
+      "errors": [],
+      "score": 80
+    },
+    {
+      "id": 19,
+      "timestamp": "2025-12-17T06:39:32.016058",
+      "prompt": "gere um fluxo pegando valores de meodaas e mandado sinais para o telegram no boot",
+      "intent": {
+        "objective": "gere um fluxo pegando valores de meodaas e mandado sinais para o telegram no boot",
+        "output_type": "file",
+        "output_format": null,
+        "integrations": [
+          "telegram"
+        ],
+        "needs_credentials": true,
+        "required_credentials": [
+          {
+            "integration": "telegram",
+            "name": "Telegram Bot",
+            "keys": [
+              "TELEGRAM_BOT_TOKEN",
+              "TELEGRAM_CHAT_ID"
+            ],
+            "instructions": {
+              "TELEGRAM_BOT_TOKEN": "1. Abra o Telegram e procure por @BotFather\n2. Envie /newbot e siga as instruções\n3. Copie o token fornecido (formato: 123456789:ABCdefGHIjklMNOpqrsTUVwxyz)",
+              "TELEGRAM_CHAT_ID": "1. Adicione seu bot a um grupo ou inicie uma conversa\n2. Envie uma mensagem para o bot\n3. Acesse: https://api.telegram.org/bot<SEU_TOKEN>/getUpdates\n4. Procure pelo chat.id no JSON retornado"
+            },
+            "docs_url": "https://core.telegram.org/bots/api",
+            "note": "",
+            "configured": false
+          }
+        ],
+        "summary": "Analisar: gere um fluxo pegando valores de meodaas e mandado"
+      },
+      "flow": {
+        "name": "Fluxo padrão",
+        "description": "Analisar: gere um fluxo pegando valores de meodaas e mandado",
+        "nodes": [
+          {
+            "id": "node_1",
+            "type": "trigger",
+            "name": "Início",
+            "config": {},
+            "next": [
+              "node_2"
+            ]
+          },
+          {
+            "id": "node_2",
+            "type": "process",
+            "name": "Processamento",
+            "config": {
+              "action": "gere um fluxo pegando valores de meodaas e mandado sinais para o telegram no boot"
+            },
+            "next": [
+              "node_3"
+            ]
+          },
+          {
+            "id": "node_3",
+            "type": "output",
+            "name": "Saída",
+            "config": {
+              "format": null,
+              "destination": "local"
+            },
+            "next": []
+          }
+        ],
+        "connections": [
+          {
+            "from": "node_1",
+            "to": "node_2"
+          },
+          {
+            "from": "node_2",
+            "to": "node_3"
+          }
+        ]
+      },
+      "approved": true,
+      "errors": [],
+      "score": 80
+    },
+    {
+      "id": 20,
+      "timestamp": "2025-12-17T06:59:11.816659",
+      "prompt": "crie um fluco para pegar cotacoes de moedas igual dolar euro e mndar as infommacoes no telegram",
+      "intent": {
+        "objective": "crie um fluco para pegar cotacoes de moedas igual dolar euro e mndar as infommacoes no telegram",
+        "output_type": "file",
+        "output_format": null,
+        "integrations": [
+          "telegram",
+          "currency_api"
+        ],
+        "needs_credentials": true,
+        "required_credentials": [
+          {
+            "integration": "telegram",
+            "name": "Telegram Bot",
+            "keys": [
+              "TELEGRAM_BOT_TOKEN",
+              "TELEGRAM_CHAT_ID"
+            ],
+            "instructions": {
+              "TELEGRAM_BOT_TOKEN": "1. Abra o Telegram e procure por @BotFather\n2. Envie /newbot e siga as instruções\n3. Copie o token fornecido (formato: 123456789:ABCdefGHIjklMNOpqrsTUVwxyz)",
+              "TELEGRAM_CHAT_ID": "1. Adicione seu bot a um grupo ou inicie uma conversa\n2. Envie uma mensagem para o bot\n3. Acesse: https://api.telegram.org/bot<SEU_TOKEN>/getUpdates\n4. Procure pelo chat.id no JSON retornado"
+            },
+            "docs_url": "https://core.telegram.org/bots/api",
+            "note": "",
+            "configured": true
+          },
+          {
+            "integration": "currency_api",
+            "name": "API de Cotações (AwesomeAPI)",
+            "keys": [],
+            "instructions": {},
+            "docs_url": "https://docs.awesomeapi.com.br/api-de-moedas",
+            "note": "API gratuita, não requer autenticação",
+            "configured": true
+          }
+        ],
+        "summary": "Analisar: crie um fluco para pegar cotacoes de moedas igual "
+      },
+      "flow": {
+        "name": "Fluxo padrão",
+        "description": "Analisar: crie um fluco para pegar cotacoes de moedas igual ",
+        "nodes": [
+          {
+            "id": "node_1",
+            "type": "trigger",
+            "name": "Início",
+            "config": {},
+            "next": [
+              "node_2"
+            ]
+          },
+          {
+            "id": "node_2",
+            "type": "process",
+            "name": "Processamento",
+            "config": {
+              "action": "crie um fluco para pegar cotacoes de moedas igual dolar euro e mndar as infommacoes no telegram"
+            },
+            "next": [
+              "node_3"
+            ]
+          },
+          {
+            "id": "node_3",
+            "type": "output",
+            "name": "Saída",
+            "config": {
+              "format": null,
+              "destination": "local"
+            },
+            "next": []
+          }
+        ],
+        "connections": [
+          {
+            "from": "node_1",
+            "to": "node_2"
+          },
+          {
+            "from": "node_2",
+            "to": "node_3"
+          }
+        ]
+      },
+      "approved": true,
+      "errors": [],
+      "score": 80
+    },
+    {
+      "id": 21,
+      "timestamp": "2025-12-17T06:59:43.101870",
+      "prompt": "crie um fluco para pegar cotacoes de moedas igual dolar euro e mndar as infommacoes no telegram",
+      "intent": {
+        "objective": "crie um fluco para pegar cotacoes de moedas igual dolar euro e mndar as infommacoes no telegram",
+        "output_type": "file",
+        "output_format": null,
+        "integrations": [
+          "telegram",
+          "currency_api"
+        ],
+        "needs_credentials": true,
+        "required_credentials": [
+          {
+            "integration": "telegram",
+            "name": "Telegram Bot",
+            "keys": [
+              "TELEGRAM_BOT_TOKEN",
+              "TELEGRAM_CHAT_ID"
+            ],
+            "instructions": {
+              "TELEGRAM_BOT_TOKEN": "1. Abra o Telegram e procure por @BotFather\n2. Envie /newbot e siga as instruções\n3. Copie o token fornecido (formato: 123456789:ABCdefGHIjklMNOpqrsTUVwxyz)",
+              "TELEGRAM_CHAT_ID": "1. Adicione seu bot a um grupo ou inicie uma conversa\n2. Envie uma mensagem para o bot\n3. Acesse: https://api.telegram.org/bot<SEU_TOKEN>/getUpdates\n4. Procure pelo chat.id no JSON retornado"
+            },
+            "docs_url": "https://core.telegram.org/bots/api",
+            "note": "",
+            "configured": true
+          },
+          {
+            "integration": "currency_api",
+            "name": "API de Cotações (AwesomeAPI)",
+            "keys": [],
+            "instructions": {},
+            "docs_url": "https://docs.awesomeapi.com.br/api-de-moedas",
+            "note": "API gratuita, não requer autenticação",
+            "configured": true
+          }
+        ],
+        "summary": "Analisar: crie um fluco para pegar cotacoes de moedas igual "
+      },
+      "flow": {
+        "name": "Fluxo padrão",
+        "description": "Analisar: crie um fluco para pegar cotacoes de moedas igual ",
+        "nodes": [
+          {
+            "id": "node_1",
+            "type": "trigger",
+            "name": "Início",
+            "config": {},
+            "next": [
+              "node_2"
+            ]
+          },
+          {
+            "id": "node_2",
+            "type": "process",
+            "name": "Processamento",
+            "config": {
+              "action": "crie um fluco para pegar cotacoes de moedas igual dolar euro e mndar as infommacoes no telegram"
+            },
+            "next": [
+              "node_3"
+            ]
+          },
+          {
+            "id": "node_3",
+            "type": "output",
+            "name": "Saída",
+            "config": {
+              "format": null,
+              "destination": "local"
+            },
+            "next": []
+          }
+        ],
+        "connections": [
+          {
+            "from": "node_1",
+            "to": "node_2"
+          },
+          {
+            "from": "node_2",
+            "to": "node_3"
+          }
+        ]
+      },
+      "approved": true,
+      "errors": [],
+      "score": 80
+    },
+    {
+      "id": 22,
+      "timestamp": "2025-12-17T07:02:31.499006",
+      "prompt": "crie um fluxo para verificar cotacoes do dolar euro e mandar as informacoes no telegram",
+      "intent": {
+        "objective": "crie um fluxo para verificar cotacoes do dolar euro e mandar as informacoes no telegram",
+        "output_type": "file",
+        "output_format": null,
+        "integrations": [
+          "telegram",
+          "currency_api"
+        ],
+        "needs_credentials": true,
+        "required_credentials": [
+          {
+            "integration": "telegram",
+            "name": "Telegram Bot",
+            "keys": [
+              "TELEGRAM_BOT_TOKEN",
+              "TELEGRAM_CHAT_ID"
+            ],
+            "instructions": {
+              "TELEGRAM_BOT_TOKEN": "1. Abra o Telegram e procure por @BotFather\n2. Envie /newbot e siga as instruções\n3. Copie o token fornecido (formato: 123456789:ABCdefGHIjklMNOpqrsTUVwxyz)",
+              "TELEGRAM_CHAT_ID": "1. Adicione seu bot a um grupo ou inicie uma conversa\n2. Envie uma mensagem para o bot\n3. Acesse: https://api.telegram.org/bot<SEU_TOKEN>/getUpdates\n4. Procure pelo chat.id no JSON retornado"
+            },
+            "docs_url": "https://core.telegram.org/bots/api",
+            "note": "",
+            "configured": true
+          },
+          {
+            "integration": "currency_api",
+            "name": "API de Cotações (AwesomeAPI)",
+            "keys": [],
+            "instructions": {},
+            "docs_url": "https://docs.awesomeapi.com.br/api-de-moedas",
+            "note": "API gratuita, não requer autenticação",
+            "configured": true
+          }
+        ],
+        "summary": "Analisar: crie um fluxo para verificar cotacoes do dolar eur"
+      },
+      "flow": {
+        "name": "Fluxo padrão",
+        "description": "Analisar: crie um fluxo para verificar cotacoes do dolar eur",
+        "nodes": [
+          {
+            "id": "node_1",
+            "type": "trigger",
+            "name": "Início",
+            "config": {},
+            "next": [
+              "node_2"
+            ]
+          },
+          {
+            "id": "node_2",
+            "type": "process",
+            "name": "Processamento",
+            "config": {
+              "action": "crie um fluxo para verificar cotacoes do dolar euro e mandar as informacoes no telegram"
+            },
+            "next": [
+              "node_3"
+            ]
+          },
+          {
+            "id": "node_3",
+            "type": "output",
+            "name": "Saída",
+            "config": {
+              "format": null,
+              "destination": "local"
+            },
+            "next": []
+          }
+        ],
+        "connections": [
+          {
+            "from": "node_1",
+            "to": "node_2"
+          },
+          {
+            "from": "node_2",
+            "to": "node_3"
+          }
+        ]
+      },
+      "approved": true,
+      "errors": [],
+      "score": 80
+    },
+    {
+      "id": 23,
+      "timestamp": "2025-12-17T07:04:42.570080",
+      "prompt": "crie um fluxo para pegar cotacoes de moedas igual euro dolar e mandar as informcoes no telegram",
+      "intent": {
+        "objective": "crie um fluxo para pegar cotacoes de moedas igual euro dolar e mandar as informcoes no telegram",
+        "output_type": "file",
+        "output_format": null,
+        "integrations": [
+          "telegram",
+          "currency_api"
+        ],
+        "needs_credentials": true,
+        "required_credentials": [
+          {
+            "integration": "telegram",
+            "name": "Telegram Bot",
+            "keys": [
+              "TELEGRAM_BOT_TOKEN",
+              "TELEGRAM_CHAT_ID"
+            ],
+            "instructions": {
+              "TELEGRAM_BOT_TOKEN": "1. Abra o Telegram e procure por @BotFather\n2. Envie /newbot e siga as instruções\n3. Copie o token fornecido (formato: 123456789:ABCdefGHIjklMNOpqrsTUVwxyz)",
+              "TELEGRAM_CHAT_ID": "1. Adicione seu bot a um grupo ou inicie uma conversa\n2. Envie uma mensagem para o bot\n3. Acesse: https://api.telegram.org/bot<SEU_TOKEN>/getUpdates\n4. Procure pelo chat.id no JSON retornado"
+            },
+            "docs_url": "https://core.telegram.org/bots/api",
+            "note": "",
+            "configured": true
+          },
+          {
+            "integration": "currency_api",
+            "name": "API de Cotações (AwesomeAPI)",
+            "keys": [],
+            "instructions": {},
+            "docs_url": "https://docs.awesomeapi.com.br/api-de-moedas",
+            "note": "API gratuita, não requer autenticação",
+            "configured": true
+          }
+        ],
+        "summary": "Analisar: crie um fluxo para pegar cotacoes de moedas igual "
+      },
+      "flow": {
+        "name": "Fluxo padrão",
+        "description": "Analisar: crie um fluxo para pegar cotacoes de moedas igual ",
+        "nodes": [
+          {
+            "id": "node_1",
+            "type": "trigger",
+            "name": "Início",
+            "config": {},
+            "next": [
+              "node_2"
+            ]
+          },
+          {
+            "id": "node_2",
+            "type": "process",
+            "name": "Processamento",
+            "config": {
+              "action": "crie um fluxo para pegar cotacoes de moedas igual euro dolar e mandar as informcoes no telegram"
+            },
+            "next": [
+              "node_3"
+            ]
+          },
+          {
+            "id": "node_3",
+            "type": "output",
+            "name": "Saída",
+            "config": {
+              "format": null,
+              "destination": "local"
+            },
+            "next": []
+          }
+        ],
+        "connections": [
+          {
+            "from": "node_1",
+            "to": "node_2"
+          },
+          {
+            "from": "node_2",
+            "to": "node_3"
+          }
+        ]
+      },
+      "approved": true,
+      "errors": [],
+      "score": 80
+    },
+    {
+      "id": 24,
+      "timestamp": "2025-12-17T22:08:18.660141",
+      "prompt": "Crie um fluxo para pegar cotação do dólar e retornar os valores no telegram bot",
+      "intent": {
+        "objective": "Pegar cotação do dólar e retornar os valores no telegram bot",
+        "output_type": "message",
+        "output_format": null,
+        "integrations": [
+          "telegram",
+          "currency_api"
+        ],
+        "needs_credentials": true,
+        "summary": "Obter a cotação do dólar e enviar os valores para um bot do Telegram.",
+        "required_credentials": [
+          {
+            "integration": "telegram",
+            "name": "Telegram Bot",
+            "keys": [
+              "TELEGRAM_BOT_TOKEN",
+              "TELEGRAM_CHAT_ID"
+            ],
+            "instructions": {
+              "TELEGRAM_BOT_TOKEN": "1. Abra o Telegram e procure por @BotFather\n2. Envie /newbot e siga as instruções\n3. Copie o token fornecido (formato: 123456789:ABCdefGHIjklMNOpqrsTUVwxyz)",
+              "TELEGRAM_CHAT_ID": "1. Adicione seu bot a um grupo ou inicie uma conversa\n2. Envie uma mensagem para o bot\n3. Acesse: https://api.telegram.org/bot<SEU_TOKEN>/getUpdates\n4. Procure pelo chat.id no JSON retornado"
+            },
+            "docs_url": "https://core.telegram.org/bots/api",
+            "note": "",
+            "configured": false
+          },
+          {
+            "integration": "currency_api",
+            "name": "API de Cotações (AwesomeAPI)",
+            "keys": [],
+            "instructions": {},
+            "docs_url": "https://docs.awesomeapi.com.br/api-de-moedas",
+            "note": "API gratuita, não requer autenticação",
+            "configured": true
+          }
+        ]
+      },
+      "flow": {
+        "name": "Fluxo padrão",
+        "description": "Obter a cotação do dólar e enviar os valores para um bot do Telegram.",
+        "nodes": [
+          {
+            "id": "node_1",
+            "type": "trigger",
+            "name": "Início",
+            "config": {},
+            "next": [
+              "node_2"
+            ]
+          },
+          {
+            "id": "node_2",
+            "type": "process",
+            "name": "Processamento",
+            "config": {
+              "action": "Pegar cotação do dólar e retornar os valores no telegram bot"
+            },
+            "next": [
+              "node_3"
+            ]
+          },
+          {
+            "id": "node_3",
+            "type": "output",
+            "name": "Saída",
+            "config": {
+              "format": null,
+              "destination": "local"
+            },
+            "next": []
+          }
+        ],
+        "connections": [
+          {
+            "from": "node_1",
+            "to": "node_2"
+          },
+          {
+            "from": "node_2",
+            "to": "node_3"
+          }
+        ]
+      },
+      "approved": true,
+      "errors": [
+        "Credenciais não configuradas"
+      ],
+      "score": 80
+    }
+  ],
+  "stats": {
+    "total": 24,
+    "approved": 20,
+    "rejected": 4
+  }
+}

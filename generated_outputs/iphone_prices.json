@@ -1,0 +1,46 @@
+{
+  "status": "success",
+  "message": "Preços de iPhones simulados com sucesso.",
+  "data": [
+    {
+      "model": "iPhone 15 Pro Max",
+      "storage": "256GB",
+      "price": 9999.00,
+      "currency": "BRL",
+      "availability": "Em estoque",
+      "last_updated": "2024-07-29T10:00:00Z"
+    },
+    {
+      "model": "iPhone 15 Pro Max",
+      "storage": "512GB",
+      "price": 10999.00,
+      "currency": "BRL",
+      "availability": "Em estoque",
+      "last_updated": "2024-07-29T10:00:00Z"
+    },
+    {
+      "model": "iPhone 15",
+      "storage": "128GB",
+      "price": 6999.00,
+      "currency": "BRL",
+      "availability": "Em estoque",
+      "last_updated": "2024-07-29T10:00:00Z"
+    },
+    {
+      "model": "iPhone 15",
+      "storage": "256GB",
+      "price": 7999.00,
+      "currency": "BRL",
+      "availability": "Em estoque",
+      "last_updated": "2024-07-29T10:00:00Z"
+    },
+    {
+      "model": "iPhone SE (3ª Geração)",
+      "storage": "64GB",
+      "price": 3499.00,
+      "currency": "BRL",
+      "availability": "Disponível para encomenda",
+      "last_updated": "2024-07-29T10:00:00Z"
+    }
+  ]
+}

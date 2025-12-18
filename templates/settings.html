@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configurações - FlowAI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #0078D4;
+            --primary-dark: #005A9E;
+            --primary-light: #106EBE;
+            --success: #107C10;
+            --error: #D13438;
+            --warning: #FFB900;
+            --bg-dark: #1A1A2E;
+            --bg-sidebar: #0F0F1A;
+            --bg-card: #16213E;
+            --bg-input: #0F3460;
+            --bg-topbar: #12122B;
+            --text-primary: #FFFFFF;
+            --text-secondary: #A0AEC0;
+            --text-muted: #718096;
+            --border: #2D3748;
+            --topbar-height: 56px;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--bg-dark) 0%, #0F0F1A 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+        
+        .topbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: var(--topbar-height);
+            background: var(--bg-topbar);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 1.5rem;
+            z-index: 100;
+        }
+        
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+        
+        .back-btn:hover {
+            background: var(--border);
+            color: var(--text-primary);
+        }
+        
+        .page-title {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        
+        .page-title i {
+            color: var(--primary);
+        }
+        
+        .main-content {
+            margin-top: var(--topbar-height);
+            padding: 2rem;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .settings-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+        
+        .settings-header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            background: linear-gradient(135deg, var(--primary), #00D4FF);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .settings-header p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        .status-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .status-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .status-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+        
+        .status-card.configured .status-icon {
+            background: rgba(16, 124, 16, 0.2);
+            color: var(--success);
+        }
+        
+        .status-card.pending .status-icon {
+            background: rgba(255, 185, 0, 0.2);
+            color: var(--warning);
+        }
+        
+        .status-info h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        
+        .status-info p {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+        
+        .integration-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+        }
+        
+        .integration-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.25rem 1.5rem;
+            background: var(--bg-input);
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .integration-header:hover {
+            background: var(--border);
+        }
+        
+        .integration-title {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .integration-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+        
+        .integration-icon.telegram { background: linear-gradient(135deg, #0088cc, #00B2FF); color: white; }
+        .integration-icon.whatsapp { background: linear-gradient(135deg, #25D366, #128C7E); color: white; }
+        .integration-icon.email { background: linear-gradient(135deg, #EA4335, #FBBC05); color: white; }
+        .integration-icon.slack { background: linear-gradient(135deg, #4A154B, #611f69); color: white; }
+        .integration-icon.database { background: linear-gradient(135deg, #336791, #4b8bbe); color: white; }
+        .integration-icon.gold { background: linear-gradient(135deg, #FFD700, #FFA500); color: #333; }
+        .integration-icon.currency { background: linear-gradient(135deg, #2E7D32, #4CAF50); color: white; }
+        
+        .integration-name h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        
+        .integration-name p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+        
+        .integration-status {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.375rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .status-badge.configured {
+            background: rgba(16, 124, 16, 0.2);
+            color: var(--success);
+            border: 1px solid var(--success);
+        }
+        
+        .status-badge.pending {
+            background: rgba(255, 185, 0, 0.2);
+            color: var(--warning);
+            border: 1px solid var(--warning);
+        }
+        
+        .status-badge.not-required {
+            background: rgba(0, 120, 212, 0.2);
+            color: var(--primary);
+            border: 1px solid var(--primary);
+        }
+        
+        .toggle-icon {
+            color: var(--text-muted);
+            transition: transform 0.3s;
+        }
+        
+        .integration-section.open .toggle-icon {
+            transform: rotate(180deg);
+        }
+        
+        .integration-body {
+            display: none;
+            padding: 1.5rem;
+        }
+        
+        .integration-section.open .integration-body {
+            display: block;
+        }
+        
+        .credential-field {
+            margin-bottom: 1.5rem;
+        }
+        
+        .credential-field:last-child {
+            margin-bottom: 0;
+        }
+        
+        .field-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+        
+        .field-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .field-label .required {
+            color: var(--error);
+        }
+        
+        .field-status {
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        
+        .field-status.configured {
+            color: var(--success);
+        }
+        
+        .field-status.missing {
+            color: var(--warning);
+        }
+        
+        .field-input-wrapper {
+            position: relative;
+        }
+        
+        .field-input {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            padding-right: 3rem;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.875rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        
+        .field-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 120, 212, 0.2);
+        }
+        
+        .field-input::placeholder {
+            color: var(--text-muted);
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .toggle-visibility {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 0.25rem;
+            transition: color 0.2s;
+        }
+        
+        .toggle-visibility:hover {
+            color: var(--text-primary);
+        }
+        
+        .field-instructions {
+            margin-top: 0.75rem;
+            padding: 1rem;
+            background: rgba(0, 120, 212, 0.1);
+            border: 1px solid rgba(0, 120, 212, 0.3);
+            border-radius: 8px;
+        }
+        
+        .field-instructions h4 {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .field-instructions p {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            white-space: pre-line;
+        }
+        
+        .docs-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            padding: 0.5rem 1rem;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+        }
+        
+        .docs-link:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        .integration-note {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            padding: 1rem;
+            background: rgba(16, 124, 16, 0.1);
+            border: 1px solid rgba(16, 124, 16, 0.3);
+            border-radius: 8px;
+        }
+        
+        .integration-note i {
+            color: var(--success);
+            margin-top: 0.125rem;
+        }
+        
+        .integration-note p {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+        
+        .actions-bar {
+            position: sticky;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--bg-topbar);
+            border-top: 1px solid var(--border);
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-top: 2rem;
+            border-radius: 16px 16px 0 0;
+        }
+        
+        .save-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+        
+        .save-status.saving {
+            color: var(--primary);
+        }
+        
+        .save-status.saved {
+            color: var(--success);
+        }
+        
+        .save-status.error {
+            color: var(--error);
+        }
+        
+        .actions-buttons {
+            display: flex;
+            gap: 0.75rem;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0, 120, 212, 0.4);
+        }
+        
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, var(--success), #0a5f0a);
+            color: white;
+        }
+        
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(16, 124, 16, 0.4);
+        }
+        
+        .btn-secondary {
+            background: var(--bg-input);
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+        }
+        
+        .btn-secondary:hover {
+            background: var(--border);
+            color: var(--text-primary);
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 100px;
+            right: 2rem;
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+        
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        .toast.success {
+            background: rgba(16, 124, 16, 0.95);
+            color: white;
+        }
+        
+        .toast.error {
+            background: rgba(209, 52, 56, 0.95);
+            color: white;
+        }
+        
+        .toast.info {
+            background: rgba(0, 120, 212, 0.95);
+            color: white;
+        }
+        
+        .spinner {
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 1rem;
+            }
+            
+            .status-overview {
+                grid-template-columns: 1fr;
+            }
+            
+            .actions-bar {
+                flex-direction: column;
+                padding: 1rem;
+            }
+            
+            .actions-buttons {
+                width: 100%;
+            }
+            
+            .actions-buttons .btn {
+                flex: 1;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <div class="topbar-left">
+            <a href="/" class="back-btn">
+                <i class="fas fa-arrow-left"></i>
+                Voltar
+            </a>
+            <div class="page-title">
+                <i class="fas fa-cog"></i>
+                Configurações
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="settings-header">
+            <h1>Configurar Integrações</h1>
+            <p>Configure suas credenciais antes de iniciar as automações. Suas informações são salvas de forma segura.</p>
+        </div>
+
+        <div class="status-overview" id="statusOverview">
+        </div>
+
+        <div id="integrationsContainer">
+        </div>
+
+        <div class="actions-bar">
+            <div class="save-status" id="saveStatus">
+                <i class="fas fa-info-circle"></i>
+                <span>Preencha os campos e salve</span>
+            </div>
+            <div class="actions-buttons">
+                <button class="btn btn-secondary" onclick="window.location.href='/'">
+                    <i class="fas fa-times"></i>
+                    Cancelar
+                </button>
+                <button class="btn btn-primary" id="saveBtn" onclick="saveAllConfigurations()">
+                    <i class="fas fa-save"></i>
+                    Salvar Configurações
+                </button>
+                <button class="btn btn-success" id="startBtn" onclick="goToAutomation()" style="display: none;">
+                    <i class="fas fa-play"></i>
+                    Iniciar Automação
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast">
+        <i class="fas fa-check-circle"></i>
+        <span></span>
+    </div>
+
+    <script>
+        const integrationIcons = {
+            telegram: { icon: 'fab fa-telegram-plane', class: 'telegram' },
+            whatsapp: { icon: 'fab fa-whatsapp', class: 'whatsapp' },
+            email: { icon: 'fas fa-envelope', class: 'email' },
+            slack: { icon: 'fab fa-slack', class: 'slack' },
+            currency_api: { icon: 'fas fa-dollar-sign', class: 'currency' },
+            gold_api: { icon: 'fas fa-coins', class: 'gold' },
+            postgresql: { icon: 'fas fa-database', class: 'database' }
+        };
+
+        let configurations = {};
+        let integrations = [];
+
+        async function loadIntegrations() {
+            try {
+                const response = await fetch('/integrations');
+                integrations = await response.json();
+                renderIntegrations();
+                loadSavedConfigurations();
+            } catch (error) {
+                console.error('Erro ao carregar integrações:', error);
+                showToast('Erro ao carregar integrações', 'error');
+            }
+        }
+
+        async function loadSavedConfigurations() {
+            try {
+                const response = await fetch('/api/configurations');
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    console.error('Erro ao carregar configurações:', errorData);
+                    showToast('Erro ao carregar configurações salvas', 'error');
+                    return;
+                }
+                
+                const saved = await response.json();
+                
+                if (Array.isArray(saved)) {
+                    saved.forEach(config => {
+                        const input = document.querySelector(`input[data-key="${config.key}"]`);
+                        if (input && config.value) {
+                            input.value = config.value;
+                            configurations[config.key] = config.value;
+                            updateFieldStatus(config.key, true);
+                        }
+                    });
+                }
+                
+                updateStatusOverview();
+                checkAllConfigured();
+            } catch (error) {
+                console.error('Erro ao carregar configurações:', error);
+                showToast('Erro de conexão ao carregar configurações', 'error');
+            }
+        }
+
+        function renderIntegrations() {
+            const container = document.getElementById('integrationsContainer');
+            container.innerHTML = '';
+
+            integrations.forEach(integration => {
+                const iconInfo = integrationIcons[integration.id] || { icon: 'fas fa-plug', class: '' };
+                const hasKeys = integration.keys_required && integration.keys_required.length > 0;
+                
+                const section = document.createElement('div');
+                section.className = 'integration-section';
+                section.dataset.integration = integration.id;
+
+                let statusBadge = '';
+                if (!hasKeys) {
+                    statusBadge = '<span class="status-badge not-required"><i class="fas fa-check"></i> Não requer configuração</span>';
+                } else if (integration.configured) {
+                    statusBadge = '<span class="status-badge configured"><i class="fas fa-check-circle"></i> Configurado</span>';
+                } else {
+                    statusBadge = '<span class="status-badge pending"><i class="fas fa-exclamation-circle"></i> Pendente</span>';
+                }
+
+                let bodyContent = '';
+                if (hasKeys) {
+                    bodyContent = integration.keys_required.map(key => {
+                        const instructions = integration.instructions ? integration.instructions[key] : '';
+                        return `
+                            <div class="credential-field">
+                                <div class="field-header">
+                                    <label class="field-label">
+                                        ${key}
+                                        <span class="required">*</span>
+                                    </label>
+                                    <span class="field-status missing" data-status-key="${key}">
+                                        <i class="fas fa-exclamation-circle"></i> Não configurado
+                                    </span>
+                                </div>
+                                <div class="field-input-wrapper">
+                                    <input 
+                                        type="password" 
+                                        class="field-input" 
+                                        data-key="${key}"
+                                        data-integration="${integration.id}"
+                                        placeholder="Digite seu ${key}"
+                                        onchange="onFieldChange('${key}', this.value)"
+                                    >
+                                    <button class="toggle-visibility" onclick="toggleVisibility(this)">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                                ${instructions ? `
+                                    <div class="field-instructions">
+                                        <h4><i class="fas fa-lightbulb"></i> Como obter</h4>
+                                        <p>${instructions}</p>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        `;
+                    }).join('');
+                    
+                    if (integration.docs_url) {
+                        bodyContent += `
+                            <a href="${integration.docs_url}" target="_blank" class="docs-link">
+                                <i class="fas fa-external-link-alt"></i>
+                                Ver documentação oficial
+                            </a>
+                        `;
+                    }
+                } else {
+                    bodyContent = `
+                        <div class="integration-note">
+                            <i class="fas fa-info-circle"></i>
+                            <p>${integration.note || 'Esta integração não requer configuração adicional.'}</p>
+                        </div>
+                    `;
+                }
+
+                section.innerHTML = `
+                    <div class="integration-header" onclick="toggleSection(this.parentElement)">
+                        <div class="integration-title">
+                            <div class="integration-icon ${iconInfo.class}">
+                                <i class="${iconInfo.icon}"></i>
+                            </div>
+                            <div class="integration-name">
+                                <h3>${integration.name}</h3>
+                                <p>${hasKeys ? integration.keys_required.length + ' credencial(is) necessária(s)' : 'Pronto para uso'}</p>
+                            </div>
+                        </div>
+                        <div class="integration-status">
+                            ${statusBadge}
+                            <i class="fas fa-chevron-down toggle-icon"></i>
+                        </div>
+                    </div>
+                    <div class="integration-body">
+                        ${bodyContent}
+                    </div>
+                `;
+
+                container.appendChild(section);
+            });
+
+            updateStatusOverview();
+        }
+
+        function toggleSection(section) {
+            section.classList.toggle('open');
+        }
+
+        function toggleVisibility(button) {
+            const input = button.previousElementSibling;
+            const icon = button.querySelector('i');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'fas fa-eye-slash';
+            } else {
+                input.type = 'password';
+                icon.className = 'fas fa-eye';
+            }
+        }
+
+        function onFieldChange(key, value) {
+            configurations[key] = value;
+            updateFieldStatus(key, !!value);
+            checkAllConfigured();
+        }
+
+        function updateFieldStatus(key, configured) {
+            const statusEl = document.querySelector(`[data-status-key="${key}"]`);
+            if (statusEl) {
+                if (configured) {
+                    statusEl.className = 'field-status configured';
+                    statusEl.innerHTML = '<i class="fas fa-check-circle"></i> Configurado';
+                } else {
+                    statusEl.className = 'field-status missing';
+                    statusEl.innerHTML = '<i class="fas fa-exclamation-circle"></i> Não configurado';
+                }
+            }
+        }
+
+        function updateStatusOverview() {
+            const container = document.getElementById('statusOverview');
+            
+            const configuredCount = integrations.filter(i => 
+                !i.keys_required?.length || i.configured || 
+                (i.keys_required?.every(k => configurations[k]))
+            ).length;
+            
+            const pendingCount = integrations.filter(i => 
+                i.keys_required?.length > 0 && !i.configured && 
+                !i.keys_required?.every(k => configurations[k])
+            ).length;
+
+            container.innerHTML = `
+                <div class="status-card configured">
+                    <div class="status-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="status-info">
+                        <h3>${configuredCount}</h3>
+                        <p>Configuradas</p>
+                    </div>
+                </div>
+                <div class="status-card pending">
+                    <div class="status-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="status-info">
+                        <h3>${pendingCount}</h3>
+                        <p>Pendentes</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function checkAllConfigured() {
+            const telegramKeys = ['TELEGRAM_BOT_TOKEN', 'TELEGRAM_CHAT_ID'];
+            const allTelegramConfigured = telegramKeys.every(k => configurations[k]);
+            
+            const startBtn = document.getElementById('startBtn');
+            if (allTelegramConfigured) {
+                startBtn.style.display = 'flex';
+            } else {
+                startBtn.style.display = 'none';
+            }
+        }
+
+        async function saveAllConfigurations() {
+            const saveBtn = document.getElementById('saveBtn');
+            const saveStatus = document.getElementById('saveStatus');
+            
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = '<i class="fas fa-spinner spinner"></i> Salvando...';
+            saveStatus.className = 'save-status saving';
+            saveStatus.innerHTML = '<i class="fas fa-spinner spinner"></i> Salvando configurações...';
+
+            try {
+                const configsToSave = [];
+                
+                Object.entries(configurations).forEach(([key, value]) => {
+                    if (value) {
+                        const input = document.querySelector(`input[data-key="${key}"]`);
+                        const integration = input ? input.dataset.integration : 'unknown';
+                        configsToSave.push({ key, value, integration });
+                    }
+                });
+
+                const response = await fetch('/api/configurations', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ configurations: configsToSave })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    saveStatus.className = 'save-status saved';
+                    saveStatus.innerHTML = '<i class="fas fa-check-circle"></i> Configurações salvas com sucesso!';
+                    showToast('Configurações salvas com sucesso!', 'success');
+                    
+                    await loadSavedConfigurations();
+                } else {
+                    throw new Error(result.error || 'Erro ao salvar');
+                }
+            } catch (error) {
+                saveStatus.className = 'save-status error';
+                saveStatus.innerHTML = '<i class="fas fa-exclamation-circle"></i> Erro ao salvar';
+                showToast('Erro ao salvar configurações: ' + error.message, 'error');
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = '<i class="fas fa-save"></i> Salvar Configurações';
+            }
+        }
+
+        function goToAutomation() {
+            window.location.href = '/?ready=true';
+        }
+
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            const icon = toast.querySelector('i');
+            const text = toast.querySelector('span');
+            
+            toast.className = `toast ${type}`;
+            text.textContent = message;
+            
+            if (type === 'success') {
+                icon.className = 'fas fa-check-circle';
+            } else if (type === 'error') {
+                icon.className = 'fas fa-exclamation-circle';
+            } else {
+                icon.className = 'fas fa-info-circle';
+            }
+            
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        document.addEventListener('DOMContentLoaded', loadIntegrations);
+    </script>
+</body>
+</html>
